@@ -4,6 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 public class Player implements KeyListener {
     
@@ -12,35 +15,104 @@ public class Player implements KeyListener {
     int speed;
     boolean upPressed, downPressed, leftPressed, rightPressed;
     
+    // Posición en el mundo
+    public int worldX;
+    public int worldY;
+    
+    // Posición en la pantalla
+    public final int screenX;
+    public final int screenY;
+    
+    BufferedImage playerImage;
+    
+    // Variables para la animación
+    BufferedImage[] walkSprites;
+    int spriteNum = 0;
+    int spriteCounter = 0;
+    String direction = "down";
+    
     public Player(GamePanel gp) {
         this.gp = gp;
+        
+        screenX = gp.screenWidth/2 - (gp.tileSize/2);
+        screenY = gp.screenHeight/2 - (gp.tileSize/2);
+        
+        getPlayerImage();
         setDefaultValues();
     }
     
+    public void getPlayerImage() {
+        try {
+            // Cargar el sprite sheet completo
+            BufferedImage spriteSheet = ImageIO.read(getClass().getResourceAsStream("/public/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png"));
+            
+            // Inicializar el array para los 6 frames de caminata
+            walkSprites = new BufferedImage[6];
+            
+            // Obtener el tamaño de cada sprite individual
+            int spriteWidth = spriteSheet.getWidth() / 6;
+            int spriteHeight = spriteSheet.getHeight() / 8;
+            
+            // Extraer los 6 sprites de caminata de la fila 1 (y=1)
+            for(int i = 0; i < 6; i++) {
+                walkSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth,    // x: multiplicar la columna por el ancho del sprite
+                    1 * spriteHeight,   // y: fila 1 * alto del sprite
+                    spriteWidth,        // ancho del sprite individual
+                    spriteHeight        // alto del sprite individual
+                );
+            }
+            
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void setDefaultValues() {
-        x = 100;
-        y = 100;
+        worldX = gp.tileSize * 23; // posición inicial en el mundo
+        worldY = gp.tileSize * 21;
         speed = 4;
     }
     
     public void update() {
-        if(upPressed) {
-            y -= speed;
-        }
-        if(downPressed) {
-            y += speed;
-        }
-        if(leftPressed) {
-            x -= speed;
-        }
-        if(rightPressed) {
-            x += speed;
+        if(upPressed || downPressed || leftPressed || rightPressed) {
+            if(upPressed) {
+                worldY -= speed;
+                direction = "up";
+            }
+            if(downPressed) {
+                worldY += speed;
+                direction = "down";
+            }
+            if(leftPressed) {
+                worldX -= speed;
+                direction = "left";
+            }
+            if(rightPressed) {
+                worldX += speed;
+                direction = "right";
+            }
+            
+            // Actualizar el contador de sprites
+            spriteCounter++;
+            if(spriteCounter > 12) { // Cambiar sprite cada 12 frames
+                spriteNum++;
+                if(spriteNum >= 6) {
+                    spriteNum = 0;
+                }
+                spriteCounter = 0;
+            }
         }
     }
     
     public void draw(Graphics2D g2) {
-        g2.setColor(Color.white);
-        g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+        // Dibujar el sprite actual de la animación
+        BufferedImage image = walkSprites[spriteNum];
+        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        
+        // Para debugging (opcional)
+        g2.setColor(Color.red);
+        g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
     }
     
     @Override

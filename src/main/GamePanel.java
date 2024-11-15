@@ -21,13 +21,27 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow; // 576 pixels
     
     Thread gameThread;
-    Player player;
+    public Player player;
     TileManager tileManager;
+    
+    // Agregar estas variables para la posición de la cámara
+    public int screenX;
+    public int screenY;
+    
+    // Agregar configuración del mundo
+    public final int maxWorldCol = 50; // Ajusta estos valores según el tamaño de tu mapa
+    public final int maxWorldRow = 50;
+    public final int worldWidth = tileSize * maxWorldCol;
+    public final int worldHeight = tileSize * maxWorldRow;
     
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
+        
+        // Calcular la posición central de la pantalla
+        screenX = screenWidth/2 - (tileSize/2);
+        screenY = screenHeight/2 - (tileSize/2);
         
         player = new Player(this);
         tileManager = new TileManager(this);
