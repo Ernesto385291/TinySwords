@@ -30,8 +30,8 @@ public class GamePanel extends JPanel implements Runnable {
     public int screenY;
     
     // Agregar configuración del mundo
-    public final int maxWorldCol = 50; // Ajusta estos valores según el tamaño de tu mapa
-    public final int maxWorldRow = 50;
+    public final int maxWorldCol = 25;
+    public final int maxWorldRow = 25;
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
     
