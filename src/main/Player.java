@@ -29,6 +29,8 @@ public class Player implements KeyListener {
     BufferedImage[] walkSprites;
     BufferedImage[] idleSprites;
     BufferedImage[] attackSprites;
+    BufferedImage[] attackUpSprites;
+    BufferedImage[] attackDownSprites;
     int spriteNum = 0;
     int spriteCounter = 0;
     boolean isMoving = false;
@@ -38,6 +40,7 @@ public class Player implements KeyListener {
     
     // Agregar variable para la dirección horizontal
     boolean facingRight = true;
+    String direction = "right";
     
     public Player(GamePanel gp) {
         this.gp = gp;
@@ -59,7 +62,9 @@ public class Player implements KeyListener {
             // Inicializar arrays para todas las animaciones
             walkSprites = new BufferedImage[6];
             idleSprites = new BufferedImage[6];
-            attackSprites = new BufferedImage[6];
+            attackSprites = new BufferedImage[6];    // ataque horizontal
+            attackUpSprites = new BufferedImage[6];  // ataque hacia arriba
+            attackDownSprites = new BufferedImage[6]; // ataque hacia abajo
             
             // Extraer sprites de idle (fila 0)
             for(int i = 0; i < 6; i++) {
@@ -75,10 +80,24 @@ public class Player implements KeyListener {
                 );
             }
             
-            // Extraer sprites de ataque (fila 2)
+            // Extraer sprites de ataque horizontal (fila 2)
             for(int i = 0; i < 6; i++) {
                 attackSprites[i] = spriteSheet.getSubimage(
                     i * spriteWidth, 2 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
+            // Extraer sprites de ataque hacia abajo (fila 4)
+            for(int i = 0; i < 6; i++) {
+                attackDownSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 4 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
+            // Extraer sprites de ataque hacia arriba (fila 6)
+            for(int i = 0; i < 6; i++) {
+                attackUpSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 6 * spriteHeight, spriteWidth, spriteHeight
                 );
             }
             
@@ -94,8 +113,19 @@ public class Player implements KeyListener {
     }
     
     public void update() {
-        // Actualizar estado de movimiento solo si no está atacando
+        // Actualizar dirección basada en el último movimiento
         if (!isAttacking) {
+            if(upPressed) direction = "up";
+            if(downPressed) direction = "down";
+            if(leftPressed) {
+                direction = "left";
+                facingRight = false;
+            }
+            if(rightPressed) {
+                direction = "right";
+                facingRight = true;
+            }
+            
             isMoving = upPressed || downPressed || leftPressed || rightPressed;
             
             if(isMoving) {
@@ -142,8 +172,20 @@ public class Player implements KeyListener {
     
     public void draw(Graphics2D g2) {
         BufferedImage[] currentAnimation;
+        
         if (isAttacking) {
-            currentAnimation = attackSprites;
+            // Seleccionar la animación de ataque según la dirección
+            switch(direction) {
+                case "up":
+                    currentAnimation = attackUpSprites;
+                    break;
+                case "down":
+                    currentAnimation = attackDownSprites;
+                    break;
+                default: // "left" o "right"
+                    currentAnimation = attackSprites;
+                    break;
+            }
         } else {
             currentAnimation = isMoving ? walkSprites : idleSprites;
         }
