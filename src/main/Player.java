@@ -31,6 +31,9 @@ public class Player implements KeyListener {
     int spriteCounter = 0;
     String direction = "down";
     
+    // Agregar variable para la dirección horizontal
+    boolean facingRight = true;
+    
     public Player(GamePanel gp) {
         this.gp = gp;
         
@@ -78,24 +81,22 @@ public class Player implements KeyListener {
         if(upPressed || downPressed || leftPressed || rightPressed) {
             if(upPressed) {
                 worldY -= speed;
-                direction = "up";
             }
             if(downPressed) {
                 worldY += speed;
-                direction = "down";
             }
             if(leftPressed) {
                 worldX -= speed;
-                direction = "left";
+                facingRight = false;  // Mirando a la izquierda
             }
             if(rightPressed) {
                 worldX += speed;
-                direction = "right";
+                facingRight = true;   // Mirando a la derecha
             }
             
-            // Actualizar el contador de sprites
+            // Actualizar animación
             spriteCounter++;
-            if(spriteCounter > 12) { // Cambiar sprite cada 12 frames
+            if(spriteCounter > 8) {
                 spriteNum++;
                 if(spriteNum >= 6) {
                     spriteNum = 0;
@@ -106,13 +107,32 @@ public class Player implements KeyListener {
     }
     
     public void draw(Graphics2D g2) {
-        // Dibujar el sprite actual de la animación
         BufferedImage image = walkSprites[spriteNum];
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        int width = (int)(gp.tileSize * 1.5);
+        int height = (int)(gp.tileSize * 1.5);
+        int drawX = screenX - (width - gp.tileSize)/2;
+        int drawY = screenY - (height - gp.tileSize)/2;
+        
+        // Crear una copia volteada de la imagen si es necesario
+        if (!facingRight) {
+            // Guardar la transformación original
+            java.awt.geom.AffineTransform originalTransform = g2.getTransform();
+            
+            // Voltear la imagen horizontalmente
+            g2.translate(drawX + width, drawY);
+            g2.scale(-1, 1);
+            g2.drawImage(image, 0, 0, width, height, null);
+            
+            // Restaurar la transformación original
+            g2.setTransform(originalTransform);
+        } else {
+            // Dibujar normalmente si mira a la derecha
+            g2.drawImage(image, drawX, drawY, width, height, null);
+        }
         
         // Para debugging (opcional)
         g2.setColor(Color.red);
-        g2.drawRect(screenX, screenY, gp.tileSize, gp.tileSize);
+        g2.drawRect(drawX, drawY, width, height);
     }
     
     @Override
