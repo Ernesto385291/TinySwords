@@ -23,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     public Player player;
     TileManager tileManager;
+    UI ui;
     
     // Agregar estas variables para la posición de la cámara
     public int screenX;
@@ -45,6 +46,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         player = new Player(this);
         tileManager = new TileManager(this);
+        ui = new UI(this);
         
         this.addKeyListener(player);
         this.setFocusable(true);
@@ -85,6 +87,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         tileManager.draw(g2);
         player.draw(g2);
+        ui.draw(g2);
         
         g2.dispose();
     }
