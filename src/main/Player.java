@@ -25,11 +25,12 @@ public class Player implements KeyListener {
     
     BufferedImage playerImage;
     
-    // Variables para la animación
+    // Variables para las animaciones
     BufferedImage[] walkSprites;
+    BufferedImage[] idleSprites;
     int spriteNum = 0;
     int spriteCounter = 0;
-    String direction = "down";
+    boolean isMoving = false;  // Nueva variable para controlar qué animación mostrar
     
     // Agregar variable para la dirección horizontal
     boolean facingRight = true;
@@ -46,23 +47,33 @@ public class Player implements KeyListener {
     
     public void getPlayerImage() {
         try {
-            // Cargar el sprite sheet completo
             BufferedImage spriteSheet = ImageIO.read(getClass().getResourceAsStream("/public/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png"));
-            
-            // Inicializar el array para los 6 frames de caminata
-            walkSprites = new BufferedImage[6];
             
             // Obtener el tamaño de cada sprite individual
             int spriteWidth = spriteSheet.getWidth() / 6;
             int spriteHeight = spriteSheet.getHeight() / 8;
             
-            // Extraer los 6 sprites de caminata de la fila 1 (y=1)
+            // Inicializar arrays para ambas animaciones
+            walkSprites = new BufferedImage[6];
+            idleSprites = new BufferedImage[6];
+            
+            // Extraer los sprites de idle de la fila 0
+            for(int i = 0; i < 6; i++) {
+                idleSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth,    // x: multiplicar la columna por el ancho del sprite
+                    0 * spriteHeight,   // y: fila 0 para idle
+                    spriteWidth,
+                    spriteHeight
+                );
+            }
+            
+            // Extraer los sprites de caminata de la fila 1
             for(int i = 0; i < 6; i++) {
                 walkSprites[i] = spriteSheet.getSubimage(
                     i * spriteWidth,    // x: multiplicar la columna por el ancho del sprite
-                    1 * spriteHeight,   // y: fila 1 * alto del sprite
-                    spriteWidth,        // ancho del sprite individual
-                    spriteHeight        // alto del sprite individual
+                    1 * spriteHeight,   // y: fila 1 para caminar
+                    spriteWidth,
+                    spriteHeight
                 );
             }
             
@@ -78,7 +89,10 @@ public class Player implements KeyListener {
     }
     
     public void update() {
-        if(upPressed || downPressed || leftPressed || rightPressed) {
+        // Actualizar el estado de movimiento
+        isMoving = upPressed || downPressed || leftPressed || rightPressed;
+        
+        if(isMoving) {
             if(upPressed) {
                 worldY -= speed;
             }
@@ -87,46 +101,42 @@ public class Player implements KeyListener {
             }
             if(leftPressed) {
                 worldX -= speed;
-                facingRight = false;  // Mirando a la izquierda
+                facingRight = false;
             }
             if(rightPressed) {
                 worldX += speed;
-                facingRight = true;   // Mirando a la derecha
+                facingRight = true;
             }
-            
-            // Actualizar animación
-            spriteCounter++;
-            if(spriteCounter > 8) {
-                spriteNum++;
-                if(spriteNum >= 6) {
-                    spriteNum = 0;
-                }
-                spriteCounter = 0;
+        }
+        
+        // Actualizar animación
+        spriteCounter++;
+        if(spriteCounter > 8) {
+            spriteNum++;
+            if(spriteNum >= 6) {
+                spriteNum = 0;
             }
+            spriteCounter = 0;
         }
     }
     
     public void draw(Graphics2D g2) {
-        BufferedImage image = walkSprites[spriteNum];
+        // Seleccionar el array de sprites correcto según el estado
+        BufferedImage[] currentAnimation = isMoving ? walkSprites : idleSprites;
+        BufferedImage image = currentAnimation[spriteNum];
+        
         int width = (int)(gp.tileSize * 1.5);
         int height = (int)(gp.tileSize * 1.5);
         int drawX = screenX - (width - gp.tileSize)/2;
         int drawY = screenY - (height - gp.tileSize)/2;
         
-        // Crear una copia volteada de la imagen si es necesario
         if (!facingRight) {
-            // Guardar la transformación original
             java.awt.geom.AffineTransform originalTransform = g2.getTransform();
-            
-            // Voltear la imagen horizontalmente
             g2.translate(drawX + width, drawY);
             g2.scale(-1, 1);
             g2.drawImage(image, 0, 0, width, height, null);
-            
-            // Restaurar la transformación original
             g2.setTransform(originalTransform);
         } else {
-            // Dibujar normalmente si mira a la derecha
             g2.drawImage(image, drawX, drawY, width, height, null);
         }
         
