@@ -28,9 +28,13 @@ public class Player implements KeyListener {
     // Variables para las animaciones
     BufferedImage[] walkSprites;
     BufferedImage[] idleSprites;
+    BufferedImage[] attackSprites;
     int spriteNum = 0;
     int spriteCounter = 0;
-    boolean isMoving = false;  // Nueva variable para controlar qué animación mostrar
+    boolean isMoving = false;
+    boolean isAttacking = false;
+    int attackDuration = 30; // Duración de la animación de ataque en frames
+    int attackTimer = 0;
     
     // Agregar variable para la dirección horizontal
     boolean facingRight = true;
@@ -49,31 +53,32 @@ public class Player implements KeyListener {
         try {
             BufferedImage spriteSheet = ImageIO.read(getClass().getResourceAsStream("/public/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png"));
             
-            // Obtener el tamaño de cada sprite individual
             int spriteWidth = spriteSheet.getWidth() / 6;
             int spriteHeight = spriteSheet.getHeight() / 8;
             
-            // Inicializar arrays para ambas animaciones
+            // Inicializar arrays para todas las animaciones
             walkSprites = new BufferedImage[6];
             idleSprites = new BufferedImage[6];
+            attackSprites = new BufferedImage[6];
             
-            // Extraer los sprites de idle de la fila 0
+            // Extraer sprites de idle (fila 0)
             for(int i = 0; i < 6; i++) {
                 idleSprites[i] = spriteSheet.getSubimage(
-                    i * spriteWidth,    // x: multiplicar la columna por el ancho del sprite
-                    0 * spriteHeight,   // y: fila 0 para idle
-                    spriteWidth,
-                    spriteHeight
+                    i * spriteWidth, 0 * spriteHeight, spriteWidth, spriteHeight
                 );
             }
             
-            // Extraer los sprites de caminata de la fila 1
+            // Extraer sprites de caminar (fila 1)
             for(int i = 0; i < 6; i++) {
                 walkSprites[i] = spriteSheet.getSubimage(
-                    i * spriteWidth,    // x: multiplicar la columna por el ancho del sprite
-                    1 * spriteHeight,   // y: fila 1 para caminar
-                    spriteWidth,
-                    spriteHeight
+                    i * spriteWidth, 1 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
+            // Extraer sprites de ataque (fila 2)
+            for(int i = 0; i < 6; i++) {
+                attackSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 2 * spriteHeight, spriteWidth, spriteHeight
                 );
             }
             
@@ -89,23 +94,31 @@ public class Player implements KeyListener {
     }
     
     public void update() {
-        // Actualizar el estado de movimiento
-        isMoving = upPressed || downPressed || leftPressed || rightPressed;
+        // Actualizar estado de movimiento solo si no está atacando
+        if (!isAttacking) {
+            isMoving = upPressed || downPressed || leftPressed || rightPressed;
+            
+            if(isMoving) {
+                if(upPressed) worldY -= speed;
+                if(downPressed) worldY += speed;
+                if(leftPressed) {
+                    worldX -= speed;
+                    facingRight = false;
+                }
+                if(rightPressed) {
+                    worldX += speed;
+                    facingRight = true;
+                }
+            }
+        }
         
-        if(isMoving) {
-            if(upPressed) {
-                worldY -= speed;
-            }
-            if(downPressed) {
-                worldY += speed;
-            }
-            if(leftPressed) {
-                worldX -= speed;
-                facingRight = false;
-            }
-            if(rightPressed) {
-                worldX += speed;
-                facingRight = true;
+        // Manejar la animación de ataque
+        if (isAttacking) {
+            attackTimer++;
+            if (attackTimer >= attackDuration) {
+                isAttacking = false;
+                attackTimer = 0;
+                spriteNum = 0;
             }
         }
         
@@ -113,16 +126,28 @@ public class Player implements KeyListener {
         spriteCounter++;
         if(spriteCounter > 8) {
             spriteNum++;
-            if(spriteNum >= 6) {
-                spriteNum = 0;
+            // Si está atacando, solo usar los frames de ataque
+            if (isAttacking) {
+                if(spriteNum >= 6) {
+                    spriteNum = 0;
+                }
+            } else {
+                if(spriteNum >= 6) {
+                    spriteNum = 0;
+                }
             }
             spriteCounter = 0;
         }
     }
     
     public void draw(Graphics2D g2) {
-        // Seleccionar el array de sprites correcto según el estado
-        BufferedImage[] currentAnimation = isMoving ? walkSprites : idleSprites;
+        BufferedImage[] currentAnimation;
+        if (isAttacking) {
+            currentAnimation = attackSprites;
+        } else {
+            currentAnimation = isMoving ? walkSprites : idleSprites;
+        }
+        
         BufferedImage image = currentAnimation[spriteNum];
         
         int width = (int)(gp.tileSize * 1.5);
@@ -164,6 +189,12 @@ public class Player implements KeyListener {
         }
         if(code == KeyEvent.VK_D) {
             rightPressed = true;
+        }
+        // Agregar ataque con espacio
+        if(code == KeyEvent.VK_SPACE && !isAttacking) {
+            isAttacking = true;
+            spriteNum = 0;
+            attackTimer = 0;
         }
     }
     
