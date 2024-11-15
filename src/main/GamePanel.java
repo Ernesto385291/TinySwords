@@ -15,10 +15,10 @@ public class GamePanel extends JPanel implements Runnable {
     final int scale = 3;
     
     public final int tileSize = originalTileSize * scale; // 48x48 tiles
-    public final int maxScreenCol = 16;
-    public final int maxScreenRow = 12;
-    public final int screenWidth = tileSize * maxScreenCol;  // 768 pixels
-    public final int screenHeight = tileSize * maxScreenRow; // 576 pixels
+    public final int maxScreenCol = 20;
+    public final int maxScreenRow = 15;
+    public final int screenWidth = tileSize * maxScreenCol;  // 960 pixels
+    public final int screenHeight = tileSize * maxScreenRow; // 720 pixels
     
     Thread gameThread;
     public Player player;
@@ -84,6 +84,10 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
+        
+        // Dibujar el agua (fondo azul turquesa #48ABA9)
+        g2.setColor(new Color(72, 171, 169)); // #48ABA9 en RGB
+        g2.fillRect(0, 0, screenWidth, screenHeight);
         
         tileManager.draw(g2);
         player.draw(g2);
