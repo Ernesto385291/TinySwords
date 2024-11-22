@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import tile.TileManager;
+import entity.Enemy;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -22,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     
     Thread gameThread;
     public Player player;
+    public Enemy enemy;
     TileManager tileManager;
     UI ui;
     
@@ -45,6 +47,7 @@ public class GamePanel extends JPanel implements Runnable {
         screenY = screenHeight/2 - (tileSize/2);
         
         player = new Player(this);
+        enemy = new Enemy(this);
         tileManager = new TileManager(this);
         ui = new UI(this);
         
@@ -79,6 +82,7 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void update() {
         player.update();
+        enemy.update();
     }
     
     public void paintComponent(Graphics g) {
@@ -90,6 +94,7 @@ public class GamePanel extends JPanel implements Runnable {
         g2.fillRect(0, 0, screenWidth, screenHeight);
         
         tileManager.draw(g2);
+        enemy.draw(g2);
         player.draw(g2);
         ui.draw(g2);
         
