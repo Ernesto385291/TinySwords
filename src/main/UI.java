@@ -19,19 +19,20 @@ public class UI {
     }
     
     public void draw(Graphics2D g2) {
-        // Hacer los corazones más pequeños y más juntos
-        int heartSize = (int)(gp.tileSize * 0.7); // 70% del tamaño de un tile
-        int margin = 5; // Reducir el espacio entre corazones
-        int startX = 10; // Mantener el margen desde el borde izquierdo
-        int startY = 10; // Mantener el margen desde el borde superior
+        int heartSize = (int)(gp.tileSize * 0.7);
+        int margin = 5;
+        int startX = 10;
+        int startY = 10;
         
-        for(int i = 0; i < 3; i++) {
-            g2.drawImage(heartFull, 
-                startX + (i * (heartSize + margin)), // x position
-                startY,                              // y position
-                heartSize,                           // width
-                heartSize,                           // height
-                null);
+        for(int i = 0; i < gp.player.maxLife; i++) {
+            if (i < gp.player.currentLife) {
+                g2.drawImage(heartFull, 
+                    startX + (i * (heartSize + margin)),
+                    startY,
+                    heartSize,
+                    heartSize,
+                    null);
+            }
         }
     }
 } 

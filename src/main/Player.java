@@ -42,6 +42,13 @@ public class Player implements KeyListener {
     boolean facingRight = true;
     String direction = "right";
     
+    // Variables de vida
+    public int maxLife = 3;
+    public int currentLife = maxLife;
+    public boolean isInvincible = false;
+    public int invincibleTimer = 0;
+    public int invincibleDuration = 60; // 1 segundo de invencibilidad
+    
     public Player(GamePanel gp) {
         this.gp = gp;
         
@@ -181,6 +188,15 @@ public class Player implements KeyListener {
             }
             spriteCounter = 0;
         }
+        
+        // Manejar invencibilidad
+        if (isInvincible) {
+            invincibleTimer++;
+            if (invincibleTimer >= invincibleDuration) {
+                isInvincible = false;
+                invincibleTimer = 0;
+            }
+        }
     }
     
     public void draw(Graphics2D g2) {
@@ -268,6 +284,14 @@ public class Player implements KeyListener {
         }
         if(code == KeyEvent.VK_D) {
             rightPressed = false;
+        }
+    }
+    
+    public void takeDamage(int damage) {
+        if (!isInvincible) {
+            currentLife -= damage;
+            isInvincible = true;
+            invincibleTimer = 0;
         }
     }
 } 

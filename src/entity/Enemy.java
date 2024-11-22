@@ -26,6 +26,19 @@ public class Enemy extends Entity {
     private int startX;
     private boolean patrollingRight = true;
     
+    // Variables para el ataque
+    BufferedImage[] attackSprites;
+    BufferedImage[] attackUpSprites;
+    BufferedImage[] attackDownSprites;
+    boolean isAttacking = false;
+    int attackTimer = 0;
+    int attackCooldown = 300; // 5 segundos (60 FPS * 5)
+    int attackDuration = 30;  // Duración de la animación de ataque
+    
+    // Variables de vida del enemigo
+    public int maxLife = 2;
+    public int currentLife = maxLife;
+    
     public Enemy(GamePanel gp) {
         this.gp = gp;
         screenX = gp.screenWidth/2;
@@ -49,21 +62,22 @@ public class Enemy extends Entity {
     
     public void getEnemyImage() {
         try {
-            // Mostrar el visor de spritesheet con las dimensiones correctas
             SpritesheetViewer.showSpritesheetGrid(
                 "/public/Factions/Goblins/Troops/Torch/Blue/Torch_Blue.png",
-                7, // número de columnas
-                5  // número de filas
+                7, 5
             );
             
             BufferedImage spriteSheet = setup("/public/Factions/Goblins/Troops/Torch/Blue/Torch_Blue.png");
             
-            int spriteWidth = spriteSheet.getWidth() / 7;  // Dividir entre 7 columnas
-            int spriteHeight = spriteSheet.getHeight() / 5; // Dividir entre 5 filas
+            int spriteWidth = spriteSheet.getWidth() / 7;
+            int spriteHeight = spriteSheet.getHeight() / 5;
             
-            // Inicializar arrays para las animaciones
+            // Inicializar arrays
             walkSprites = new BufferedImage[7];
             idleSprites = new BufferedImage[7];
+            attackSprites = new BufferedImage[6];
+            attackUpSprites = new BufferedImage[6];
+            attackDownSprites = new BufferedImage[6];
             
             // Extraer sprites de idle (fila 0)
             for(int i = 0; i < 7; i++) {
@@ -79,6 +93,27 @@ public class Enemy extends Entity {
                 );
             }
             
+            // Extraer sprites de ataque horizontal (fila 2)
+            for(int i = 0; i < 6; i++) {
+                attackSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 2 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
+            // Extraer sprites de ataque hacia abajo (fila 3)
+            for(int i = 0; i < 6; i++) {
+                attackDownSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 3 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
+            // Extraer sprites de ataque hacia arriba (fila 4)
+            for(int i = 0; i < 6; i++) {
+                attackUpSprites[i] = spriteSheet.getSubimage(
+                    i * spriteWidth, 4 * spriteHeight, spriteWidth, spriteHeight
+                );
+            }
+            
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -91,48 +126,88 @@ public class Enemy extends Entity {
         int xDistance = Math.abs(worldX - gp.player.worldX);
         int yDistance = Math.abs(worldY - gp.player.worldY);
         
-        // Si el jugador está dentro del rango de detección
-        if (xDistance < detectionRange && yDistance < detectionRange) {
-            // Perseguir al jugador
-            if(worldX < gp.player.worldX - gp.tileSize) {
-                direction = "right";
-                worldX += speed;
-                facingRight = true;
-                isMoving = true;
+        // Distancia para atacar
+        int attackRange = gp.tileSize;
+        
+        // Si está en rango de ataque y no está atacando
+        if (xDistance < attackRange && yDistance < attackRange && !isAttacking) {
+            if (attackTimer >= attackCooldown) {
+                isAttacking = true;
+                attackTimer = 0;
+                spriteNum = 0;
+                
+                // Determinar dirección del ataque
+                if (Math.abs(worldY - gp.player.worldY) > Math.abs(worldX - gp.player.worldX)) {
+                    if (worldY > gp.player.worldY) {
+                        direction = "up";
+                    } else {
+                        direction = "down";
+                    }
+                } else {
+                    direction = worldX > gp.player.worldX ? "left" : "right";
+                    facingRight = direction.equals("right");
+                }
             }
-            if(worldX > gp.player.worldX + gp.tileSize) {
-                direction = "left";
-                worldX -= speed;
-                facingRight = false;
-                isMoving = true;
+        }
+        
+        // Manejar el ataque
+        if (isAttacking) {
+            attackTimer++;
+            // Causar daño a la mitad de la animación
+            if (attackTimer == attackDuration/2) {
+                if (xDistance < gp.tileSize && yDistance < gp.tileSize) {
+                    gp.player.takeDamage(1);
+                }
             }
-            if(worldY < gp.player.worldY - gp.tileSize) {
-                direction = "down";
-                worldY += speed;
-                isMoving = true;
-            }
-            if(worldY > gp.player.worldY + gp.tileSize) {
-                direction = "up";
-                worldY -= speed;
-                isMoving = true;
+            if (attackTimer >= attackDuration) {
+                isAttacking = false;
             }
         } else {
-            // Patrullar de izquierda a derecha
-            isMoving = true;
+            attackTimer++;
             
-            if (patrollingRight) {
-                direction = "right";
-                facingRight = true;
-                worldX += speed;
-                if (worldX > startX + patrolDistance) {
-                    patrollingRight = false;
+            // Si el jugador está dentro del rango de detección
+            if (xDistance < detectionRange && yDistance < detectionRange) {
+                // Perseguir al jugador
+                if(worldX < gp.player.worldX - gp.tileSize/4) {
+                    direction = "right";
+                    worldX += speed;
+                    facingRight = true;
+                    isMoving = true;
+                }
+                if(worldX > gp.player.worldX + gp.tileSize/4) {
+                    direction = "left";
+                    worldX -= speed;
+                    facingRight = false;
+                    isMoving = true;
+                }
+                if(worldY < gp.player.worldY - gp.tileSize/4) {
+                    direction = "down";
+                    worldY += speed;
+                    isMoving = true;
+                }
+                if(worldY > gp.player.worldY + gp.tileSize/4) {
+                    direction = "up";
+                    worldY -= speed;
+                    isMoving = true;
                 }
             } else {
-                direction = "left";
-                facingRight = false;
-                worldX -= speed;
-                if (worldX < startX - patrolDistance) {
-                    patrollingRight = true;
+                // Patrullar de izquierda a derecha
+                isMoving = true;
+                
+                if (patrollingRight) {
+                    direction = "right";
+                    facingRight = true;
+                    worldX += speed;
+                    if (worldX > startX + patrolDistance) {
+                        patrollingRight = false;
+                    }
+                } else {
+                    direction = "left";
+                    facingRight = false;
+                    worldX -= speed;
+                    if (worldX < startX - patrolDistance) {
+                        patrollingRight = true;
+                    }
                 }
             }
         }
@@ -141,7 +216,15 @@ public class Enemy extends Entity {
         spriteCounter++;
         if(spriteCounter > 12) {
             spriteNum++;
-            spriteNum = spriteNum % 7;
+            if (isAttacking) {
+                if(spriteNum >= 6) {
+                    spriteNum = 0;
+                }
+            } else {
+                if(spriteNum >= 7) {
+                    spriteNum = 0;
+                }
+            }
             spriteCounter = 0;
         }
     }
@@ -155,7 +238,23 @@ public class Enemy extends Entity {
            worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
            worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
             
-            BufferedImage[] currentAnimation = isMoving ? walkSprites : idleSprites;
+            BufferedImage[] currentAnimation;
+            if (isAttacking) {
+                switch(direction) {
+                    case "up":
+                        currentAnimation = attackUpSprites;
+                        break;
+                    case "down":
+                        currentAnimation = attackDownSprites;
+                        break;
+                    default:
+                        currentAnimation = attackSprites;
+                        break;
+                }
+            } else {
+                currentAnimation = isMoving ? walkSprites : idleSprites;
+            }
+            
             BufferedImage image = currentAnimation[spriteNum];
             
             int width = (int)(gp.tileSize * 1.5);
@@ -172,6 +271,15 @@ public class Enemy extends Entity {
             } else {
                 g2.drawImage(image, drawX, drawY, width, height, null);
             }
+        }
+    }
+    
+    // Agregar método para recibir daño
+    public void takeDamage(int damage) {
+        currentLife -= damage;
+        if (currentLife <= 0) {
+            // Aquí puedes agregar lógica para cuando el enemigo muere
+            // Por ejemplo, removerlo del juego
         }
     }
 } 
