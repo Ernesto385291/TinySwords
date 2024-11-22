@@ -41,19 +41,20 @@ public class Enemy extends Entity {
     
     private boolean isDead = false;
     
-    public Enemy(GamePanel gp) {
+    public Enemy(GamePanel gp, int startCol, int startRow) {
         this.gp = gp;
         screenX = gp.screenWidth/2;
         screenY = gp.screenHeight/2;
+        
+        worldX = gp.tileSize * startCol;
+        worldY = gp.tileSize * startRow;
+        startX = worldX;
         
         setDefaultValues();
         getEnemyImage();
     }
     
     public void setDefaultValues() {
-        worldX = gp.tileSize * 10;
-        worldY = gp.tileSize * 10;
-        startX = worldX;
         speed = 2;
         direction = "right";
         

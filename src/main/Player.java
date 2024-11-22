@@ -6,6 +6,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+
+import entity.Enemy;
+
 import java.io.IOException;
 
 public class Player implements KeyListener {
@@ -200,15 +203,17 @@ public class Player implements KeyListener {
         
         // Agregar esto dentro del bloque if (isAttacking)
         if (isAttacking && attackTimer == attackDuration/2) {
-            // Verificar si el enemigo está en rango
-            int xDistance = Math.abs(worldX - gp.enemy.worldX);
-            int yDistance = Math.abs(worldY - gp.enemy.worldY);
-            
-            // Rango de ataque basado en la dirección
-            int attackRange = gp.tileSize;
-            
-            if (xDistance < attackRange && yDistance < attackRange) {
-                gp.enemy.takeDamage(1);
+            // Verificar si algún enemigo está en rango
+            for(Enemy enemy : gp.enemies) {
+                int xDistance = Math.abs(worldX - enemy.worldX);
+                int yDistance = Math.abs(worldY - enemy.worldY);
+                
+                // Rango de ataque basado en la dirección
+                int attackRange = gp.tileSize;
+                
+                if (xDistance < attackRange && yDistance < attackRange) {
+                    enemy.takeDamage(1);
+                }
             }
         }
     }
