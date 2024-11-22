@@ -39,6 +39,8 @@ public class Enemy extends Entity {
     public int maxLife = 2;
     public int currentLife = maxLife;
     
+    private boolean isDead = false;
+    
     public Enemy(GamePanel gp) {
         this.gp = gp;
         screenX = gp.screenWidth/2;
@@ -120,6 +122,13 @@ public class Enemy extends Entity {
     }
     
     public void update() {
+        if (isDead) {
+            // Si está muerto, solo mantener la animación idle
+            isMoving = false;
+            isAttacking = false;
+            return;
+        }
+        
         isMoving = false;
         
         // Calcular distancia al jugador
@@ -278,8 +287,10 @@ public class Enemy extends Entity {
     public void takeDamage(int damage) {
         currentLife -= damage;
         if (currentLife <= 0) {
-            // Aquí puedes agregar lógica para cuando el enemigo muere
-            // Por ejemplo, removerlo del juego
+            isDead = true;
+            currentLife = 0;
+            isMoving = false;
+            isAttacking = false;
         }
     }
 } 

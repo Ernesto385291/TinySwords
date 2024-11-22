@@ -197,6 +197,20 @@ public class Player implements KeyListener {
                 invincibleTimer = 0;
             }
         }
+        
+        // Agregar esto dentro del bloque if (isAttacking)
+        if (isAttacking && attackTimer == attackDuration/2) {
+            // Verificar si el enemigo está en rango
+            int xDistance = Math.abs(worldX - gp.enemy.worldX);
+            int yDistance = Math.abs(worldY - gp.enemy.worldY);
+            
+            // Rango de ataque basado en la dirección
+            int attackRange = gp.tileSize;
+            
+            if (xDistance < attackRange && yDistance < attackRange) {
+                gp.enemy.takeDamage(1);
+            }
+        }
     }
     
     public void draw(Graphics2D g2) {
