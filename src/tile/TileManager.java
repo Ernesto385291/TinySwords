@@ -23,10 +23,11 @@ public class TileManager {
     
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[30];
+        tile = new Tile[35];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap("/maps/map01.txt");
+        showElevationTilemapGrid();
     }
     
     public void getTileImage() {
@@ -106,14 +107,72 @@ public class TileManager {
             tile[7].collision = true;
             System.out.println("Tile 7 (esquina izquierda de arena) cargado correctamente");
 
-            // Dibujamos la cuadrícula de referencia
-            drawTilemapGrid(fullTilemap);
+            // Cargamos el tilemap de elevación
+            BufferedImage elevationTilemap = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/Tilemap_Elevation.png"));
             
-            // Ahora cargamos las decoraciones empezando desde el índice 8
+            // Center elevation (tile[8])
+            tile[8] = new Tile();
+            tile[8].image = elevationTilemap.getSubimage(1 * 48, 4 * 48, 48, 48);
+            tile[8].collision = true;
+            System.out.println("Tile 8 (elevación central) cargado correctamente");
+            
+            // Left elevation (tile[9])
+            tile[9] = new Tile();
+            tile[9].image = elevationTilemap.getSubimage(0 * 48, 7 * 48, 48, 48);
+            tile[9].collision = true;
+            System.out.println("Tile 9 (elevación izquierda) cargado correctamente");
+            
+            // Right elevation (tile[10])
+            tile[10] = new Tile();
+            tile[10].image = elevationTilemap.getSubimage(3 * 48, 7 * 48, 48, 48);
+            tile[10].collision = true;
+            System.out.println("Tile 10 (elevación derecha) cargado correctamente");
+
+            // Left edge grass (tile[11])
+            tile[11] = new Tile();
+            tile[11].image = fullTilemap.getSubimage(0 * 48, 1 * 48, 48, 48);
+            tile[11].collision = true;
+            System.out.println("Tile 11 (borde izquierdo de pasto) cargado correctamente");
+            
+            // Left top corner (tile[12])
+            tile[12] = new Tile();
+            tile[12].image = fullTilemap.getSubimage(0 * 48, 0 * 48, 48, 48);
+            tile[12].collision = true;
+            System.out.println("Tile 12 (esquina superior izquierda) cargado correctamente");
+            
+            // Left bottom edge corner (tile[13])
+            tile[13] = new Tile();
+            tile[13].image = fullTilemap.getSubimage(0 * 48, 3 * 48, 48, 48);
+            tile[13].collision = true;
+            System.out.println("Tile 13 (esquina inferior izquierda) cargado correctamente");
+            
+            // Right bottom edge grass (tile[14])
+            tile[14] = new Tile();
+            tile[14].image = fullTilemap.getSubimage(3 * 48, 3 * 48, 48, 48);
+            tile[14].collision = true;
+            System.out.println("Tile 14 (borde derecho de pasto) cargado correctamente");
+            
+            // Grass edge (tile[15])
+            tile[15] = new Tile();
+            tile[15].image = fullTilemap.getSubimage(1 * 48, 3 * 48, 48, 48);
+            tile[15].collision = true;
+            System.out.println("Tile 15 (borde inferior de pasto) cargado correctamente");
+
+            // Right edge grass (tile[16])
+            tile[16] = new Tile();
+            tile[16].image = fullTilemap.getSubimage(3 * 48, 2 * 48, 48, 48);
+            tile[16].collision = true;
+            System.out.println("Tile 16 (borde derecho de pasto rotado) cargado correctamente");
+
+            // Dibujamos las cuadrículas de referencia
+            drawTilemapGrid(fullTilemap);
+            showElevationTilemapGrid();
+            
+            // Ahora cargamos las decoraciones empezando desde el índice 17
             for(int i = 1; i <= 18; i++) {
                 String fileName = String.format("%02d.png", i);
-                tile[i + 7] = new Tile(); // Cambiado de i + 6 a i + 7
-                tile[i + 7].image = ImageIO.read(getClass().getResourceAsStream("/public/Deco/" + fileName));
+                tile[i + 16] = new Tile(); // Cambiado de i + 15 a i + 16
+                tile[i + 16].image = ImageIO.read(getClass().getResourceAsStream("/public/Deco/" + fileName));
                 System.out.println("Decoración " + i + " cargada correctamente");
             }
             
@@ -215,9 +274,9 @@ public class TileManager {
                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 
-                if (tileNum >= 0 && tileNum <= 7) {  // Cambiado de 6 a 7 para incluir ambos corners
+                if (tileNum >= 0 && tileNum <= 16) {  // Cambiado de 15 a 16 para incluir el nuevo borde
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                } else if (tileNum >= 8) {  // Cambiado de 7 a 8 para las decoraciones
+                } else if (tileNum >= 17) {  // Cambiado de 16 a 17 para las decoraciones
                     // Dibujamos el pasto como base
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     // Luego la decoración
@@ -238,6 +297,50 @@ public class TileManager {
                 worldCol = 0;
                 worldRow++;
             }
+        }
+    }
+    
+    public void showElevationTilemapGrid() {
+        try {
+            // Cargamos el tilemap de elevación
+            BufferedImage elevationTilemap = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/Tilemap_Elevation.png"));
+            
+            int tileSize = 48;
+            int cols = elevationTilemap.getWidth() / tileSize;
+            int rows = elevationTilemap.getHeight() / tileSize;
+            
+            // Crear una nueva imagen con la cuadrícula
+            BufferedImage gridImage = new BufferedImage(
+                elevationTilemap.getWidth(), 
+                elevationTilemap.getHeight(), 
+                BufferedImage.TYPE_INT_ARGB
+            );
+            Graphics2D g2 = gridImage.createGraphics();
+            
+            // Dibujar el tilemap original
+            g2.drawImage(elevationTilemap, 0, 0, null);
+            
+            // Dibujar la cuadrícula
+            g2.setColor(Color.RED);
+            for (int x = 0; x < cols; x++) {
+                for (int y = 0; y < rows; y++) {
+                    g2.drawRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    // Dibujar las coordenadas en cada celda
+                    g2.drawString(x + "," + y, x * tileSize + 5, y * tileSize + 15);
+                }
+            }
+            
+            // Mostrar la imagen con la cuadrícula en una ventana separada
+            JFrame frame = new JFrame("Elevation Tilemap Grid Reference");
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            JLabel label = new JLabel(new ImageIcon(gridImage));
+            frame.add(label);
+            frame.pack();
+            frame.setVisible(true);
+            
+        } catch(IOException e) {
+            System.out.println("Error cargando Tilemap_Elevation.png: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 } 
