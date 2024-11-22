@@ -343,4 +343,12 @@ public class TileManager {
             e.printStackTrace();
         }
     }
+    
+    public int getTileNum(int col, int row) {
+        return mapTileNum[col][row];
+    }
+    
+    public Tile getTile(int index) {
+        return tile[index];
+    }
 } 

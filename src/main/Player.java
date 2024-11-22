@@ -128,16 +128,29 @@ public class Player implements KeyListener {
             
             isMoving = upPressed || downPressed || leftPressed || rightPressed;
             
+            // Check collision before moving
             if(isMoving) {
-                if(upPressed) worldY -= speed;
-                if(downPressed) worldY += speed;
-                if(leftPressed) {
-                    worldX -= speed;
-                    facingRight = false;
-                }
-                if(rightPressed) {
-                    worldX += speed;
-                    facingRight = true;
+                // Store the current position
+                int nextWorldX = worldX;
+                int nextWorldY = worldY;
+                
+                // Calculate next position
+                if(upPressed) nextWorldY -= speed;
+                if(downPressed) nextWorldY += speed;
+                if(leftPressed) nextWorldX -= speed;
+                if(rightPressed) nextWorldX += speed;
+                
+                // Get player's collision box
+                int playerCol = nextWorldX/gp.tileSize;
+                int playerRow = nextWorldY/gp.tileSize;
+                
+                // Check if the next position has a collision tile
+                int tileNum = gp.tileManager.getTileNum(playerCol, playerRow);
+                
+                // Only move if there's no collision
+                if(!gp.tileManager.getTile(tileNum).collision) {
+                    worldX = nextWorldX;
+                    worldY = nextWorldY;
                 }
             }
         }
