@@ -2,7 +2,7 @@ package main;
 
 public class App {
     public static void main(String[] args) {
-        Game game = new Game();
-        game.startGameThread();
+        // Iniciar la pantalla de título primero
+        new TitleScreen();  // Esto mostrará la pantalla de inicio y luego lanzará el juego al presionar ENTER
     }
 }
