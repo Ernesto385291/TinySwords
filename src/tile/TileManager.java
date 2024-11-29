@@ -19,7 +19,7 @@ public class TileManager {
     
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[36];
+        tile = new Tile[39];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap("/maps/map01.txt");
@@ -179,6 +179,24 @@ public class TileManager {
             tile[35].collision = true; // El agua tiene colisión para que el jugador no pueda caminar sobre ella
             System.out.println("Tile 35 (agua) cargado correctamente");
             
+            // Center stairs (tile[36])
+            tile[36] = new Tile();
+            tile[36].image = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/stairs/center.png"));
+            tile[36].collision = false; // Set to true if you want stairs to be non-walkable
+            System.out.println("Tile 36 (center stairs) cargado correctamente");
+            
+            // Left stairs (tile[37])
+            tile[37] = new Tile();
+            tile[37].image = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/stairs/left.png"));
+            tile[37].collision = false;
+            System.out.println("Tile 37 (left stairs) cargado correctamente");
+            
+            // Right stairs (tile[38])
+            tile[38] = new Tile();
+            tile[38].image = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/stairs/right.png"));
+            tile[38].collision = false;
+            System.out.println("Tile 38 (right stairs) cargado correctamente");
+            
         } catch(IOException e) {
             System.out.println("Error cargando imagen: " + e.getMessage());
             e.printStackTrace();
@@ -242,9 +260,9 @@ public class TileManager {
                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 
-                if (tileNum >= 0 && tileNum <= 16 || tileNum == 35) {  // Incluimos el tile de agua
+                if (tileNum >= 0 && tileNum <= 16 || tileNum >= 35 && tileNum <= 38) {  // Updated range to include stairs
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                } else if (tileNum >= 17 && tileNum < 35) {  // Ajustamos el rango para las decoraciones
+                } else if (tileNum >= 17 && tileNum < 35) {  // Decorations range stays the same
                     // Dibujamos el pasto como base
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     // Luego la decoración
