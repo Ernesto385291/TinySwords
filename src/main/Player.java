@@ -154,6 +154,12 @@ public class Player implements KeyListener {
                 int playerCol = nextWorldX/gp.tileSize;
                 int playerRow = nextWorldY/gp.tileSize;
                 
+                // Check map boundaries
+                if (playerCol < 0 || playerRow < 0 || 
+                    playerCol >= gp.maxWorldCol || playerRow >= gp.maxWorldRow) {
+                    return;
+                }
+                
                 // Check if the next position has a collision tile
                 int tileNum = gp.tileManager.getTileNum(playerCol, playerRow);
                 

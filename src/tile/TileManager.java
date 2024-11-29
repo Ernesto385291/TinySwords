@@ -19,7 +19,7 @@ public class TileManager {
     
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[35];
+        tile = new Tile[36];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap("/maps/map01.txt");
@@ -31,6 +31,12 @@ public class TileManager {
             
             // Cargamos la imagen completa una sola vez para ser más eficientes
             BufferedImage fullTilemap = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/Tilemap_Flat.png"));
+            
+            // Cargar el tile de agua
+            tile[4] = new Tile(); // water
+            tile[4].image = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Water/Water.png"));
+            tile[4].collision = true; // El agua tiene colisión para que el jugador no pueda caminar sobre ella
+            System.out.println("Tile 4 (agua) cargado correctamente");
             
             tile[0] = new Tile(); // grass
             tile[0].image = fullTilemap.getSubimage(48, 48, 48, 48);
@@ -167,6 +173,12 @@ public class TileManager {
                 System.out.println("Decoración " + i + " cargada correctamente");
             }
             
+            // Añadir el tile de agua al final
+            tile[35] = new Tile(); // water
+            tile[35].image = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Water/Water.png"));
+            tile[35].collision = true; // El agua tiene colisión para que el jugador no pueda caminar sobre ella
+            System.out.println("Tile 35 (agua) cargado correctamente");
+            
         } catch(IOException e) {
             System.out.println("Error cargando imagen: " + e.getMessage());
             e.printStackTrace();
@@ -230,9 +242,9 @@ public class TileManager {
                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 
-                if (tileNum >= 0 && tileNum <= 16) {  // Cambiado de 15 a 16 para incluir el nuevo borde
+                if (tileNum >= 0 && tileNum <= 16 || tileNum == 35) {  // Incluimos el tile de agua
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                } else if (tileNum >= 17) {  // Cambiado de 16 a 17 para las decoraciones
+                } else if (tileNum >= 17 && tileNum < 35) {  // Ajustamos el rango para las decoraciones
                     // Dibujamos el pasto como base
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     // Luego la decoración
