@@ -8,10 +8,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import javax.imageio.ImageIO;
 import main.GamePanel;
-import javax.swing.JFrame;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
@@ -27,7 +23,6 @@ public class TileManager {
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap("/maps/map01.txt");
-        showElevationTilemapGrid();
     }
     
     public void getTileImage() {
@@ -164,10 +159,6 @@ public class TileManager {
             tile[16].collision = true;
             System.out.println("Tile 16 (borde derecho de pasto rotado) cargado correctamente");
 
-            // Dibujamos las cuadrículas de referencia
-            drawTilemapGrid(fullTilemap);
-            showElevationTilemapGrid();
-            
             // Ahora cargamos las decoraciones empezando desde el índice 17
             for(int i = 1; i <= 18; i++) {
                 String fileName = String.format("%02d.png", i);
@@ -180,41 +171,6 @@ public class TileManager {
             System.out.println("Error cargando imagen: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-    
-    private void drawTilemapGrid(BufferedImage tilemap) {
-        int tileSize = 48;
-        int cols = tilemap.getWidth() / tileSize;
-        int rows = tilemap.getHeight() / tileSize;
-        
-        // Crear una nueva imagen con la cuadrícula
-        BufferedImage gridImage = new BufferedImage(
-            tilemap.getWidth(), 
-            tilemap.getHeight(), 
-            BufferedImage.TYPE_INT_ARGB
-        );
-        Graphics2D g2 = gridImage.createGraphics();
-        
-        // Dibujar el tilemap original
-        g2.drawImage(tilemap, 0, 0, null);
-        
-        // Dibujar la cuadrícula
-        g2.setColor(Color.RED);
-        for (int x = 0; x < cols; x++) {
-            for (int y = 0; y < rows; y++) {
-                g2.drawRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                // Dibujar las coordenadas en cada celda
-                g2.drawString(x + "," + y, x * tileSize + 5, y * tileSize + 15);
-            }
-        }
-        
-        // Mostrar la imagen con la cuadrícula en una ventana separada
-        JFrame frame = new JFrame("Tilemap Grid Reference");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JLabel label = new JLabel(new ImageIcon(gridImage));
-        frame.add(label);
-        frame.pack();
-        frame.setVisible(true);
     }
     
     public void loadMap(String mapPath) {
@@ -297,50 +253,6 @@ public class TileManager {
                 worldCol = 0;
                 worldRow++;
             }
-        }
-    }
-    
-    public void showElevationTilemapGrid() {
-        try {
-            // Cargamos el tilemap de elevación
-            BufferedImage elevationTilemap = ImageIO.read(getClass().getResourceAsStream("/public/Terrain/Ground/Tilemap_Elevation.png"));
-            
-            int tileSize = 48;
-            int cols = elevationTilemap.getWidth() / tileSize;
-            int rows = elevationTilemap.getHeight() / tileSize;
-            
-            // Crear una nueva imagen con la cuadrícula
-            BufferedImage gridImage = new BufferedImage(
-                elevationTilemap.getWidth(), 
-                elevationTilemap.getHeight(), 
-                BufferedImage.TYPE_INT_ARGB
-            );
-            Graphics2D g2 = gridImage.createGraphics();
-            
-            // Dibujar el tilemap original
-            g2.drawImage(elevationTilemap, 0, 0, null);
-            
-            // Dibujar la cuadrícula
-            g2.setColor(Color.RED);
-            for (int x = 0; x < cols; x++) {
-                for (int y = 0; y < rows; y++) {
-                    g2.drawRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                    // Dibujar las coordenadas en cada celda
-                    g2.drawString(x + "," + y, x * tileSize + 5, y * tileSize + 15);
-                }
-            }
-            
-            // Mostrar la imagen con la cuadrícula en una ventana separada
-            JFrame frame = new JFrame("Elevation Tilemap Grid Reference");
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            JLabel label = new JLabel(new ImageIcon(gridImage));
-            frame.add(label);
-            frame.pack();
-            frame.setVisible(true);
-            
-        } catch(IOException e) {
-            System.out.println("Error cargando Tilemap_Elevation.png: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     

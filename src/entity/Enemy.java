@@ -4,7 +4,6 @@ import main.GamePanel;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import util.SpritesheetViewer;
 
 public class Enemy extends Entity {
     
@@ -65,11 +64,6 @@ public class Enemy extends Entity {
     
     public void getEnemyImage() {
         try {
-            SpritesheetViewer.showSpritesheetGrid(
-                "/public/Factions/Goblins/Troops/Torch/Blue/Torch_Blue.png",
-                7, 5
-            );
-            
             BufferedImage spriteSheet = setup("/public/Factions/Goblins/Troops/Torch/Blue/Torch_Blue.png");
             
             int spriteWidth = spriteSheet.getWidth() / 7;

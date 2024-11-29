@@ -2,7 +2,6 @@ package entity;
 
 import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
-import java.awt.Graphics2D;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
