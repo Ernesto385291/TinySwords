@@ -20,7 +20,7 @@ public class TileManager {
     
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[40];
+        tile = new Tile[41];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         animatedTree = new AnimatedTree();
         getTileImage();
@@ -216,6 +216,12 @@ public class TileManager {
             tile[39].collision = true;
             System.out.println("Tile 39 (pine tree) cargado correctamente");
             
+            // Después del último tile (39 - árbol), agregamos la casa
+            tile[40] = new Tile();
+            tile[40].image = ImageIO.read(getClass().getResourceAsStream("/public/Factions/Knights/Buildings/House/House_Blue.png"));
+            tile[40].collision = true; // La casa tendrá colisión
+            System.out.println("Tile 40 (casa azul) cargado correctamente");
+            
             // Debug: Print all available resources in the directory
             try (InputStream in = getClass().getResourceAsStream("/public/Resources/Trees");
                  BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
@@ -309,6 +315,30 @@ public class TileManager {
                     // Árbol animado
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     animatedTree.draw(g2, screenX, screenY, gp.tileSize);
+                } else if (tileNum == 40) {
+                    // Casa
+                    g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                    
+                    // Calculamos el tamaño manteniendo la proporción de la imagen original
+                    double scale = 4.0; // Factor de escala
+                    int originalWidth = tile[40].image.getWidth();
+                    int originalHeight = tile[40].image.getHeight();
+                    double ratio = (double) originalWidth / originalHeight;
+                    
+                    int houseHeight = (int)(gp.tileSize * scale);
+                    int houseWidth = (int)(houseHeight * ratio);
+                    
+                    // Centramos la casa horizontalmente
+                    int offsetX = (gp.tileSize - houseWidth) / 2;
+                    // Alineamos la base con el tile
+                    int offsetY = gp.tileSize - houseHeight;
+                    
+                    g2.drawImage(tile[40].image, 
+                        screenX + offsetX, 
+                        screenY + offsetY, 
+                        houseWidth, 
+                        houseHeight, 
+                        null);
                 }
             }
             
