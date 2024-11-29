@@ -55,11 +55,15 @@ public class Player implements KeyListener {
     public Player(GamePanel gp) {
         this.gp = gp;
         
-        screenX = gp.screenWidth/2 - (gp.tileSize/2);
-        screenY = gp.screenHeight/2 - (gp.tileSize/2);
+        screenX = gp.screenWidth/2;
+        screenY = gp.screenHeight/2;
         
-        getPlayerImage();
+        // Posición inicial en la esquina inferior izquierda
+        worldX = gp.tileSize * 2;
+        worldY = gp.tileSize * (gp.maxWorldRow - 3);
+        
         setDefaultValues();
+        getPlayerImage();
     }
     
     public void getPlayerImage() {
@@ -117,9 +121,10 @@ public class Player implements KeyListener {
     }
     
     public void setDefaultValues() {
-        worldX = gp.tileSize * 23; // posición inicial en el mundo
-        worldY = gp.tileSize * 21;
+        worldX = gp.tileSize * 2; // Un poco separado del borde izquierdo
+        worldY = gp.tileSize * (gp.maxWorldRow - 3); // Cerca del borde inferior, pero no pegado
         speed = 4;
+        direction = "down";
     }
     
     public void update() {

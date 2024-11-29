@@ -3,6 +3,7 @@ package tile;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import java.util.Random;
 
 public class AnimatedTree {
     private BufferedImage[] frames;
@@ -10,6 +11,10 @@ public class AnimatedTree {
     private int frameCount;
     private int frameDelay;
     private int frameTimer;
+    private boolean reverseAnimation;
+    private static Random random = new Random();
+    private int uniqueDelay;
+    private int startFrame;
     
     public AnimatedTree() {
         try {
@@ -17,15 +22,17 @@ public class AnimatedTree {
             BufferedImage fullTreeSheet = ImageIO.read(getClass().getResourceAsStream("/public/Resources/Trees/Tree.png"));
             
             // Configurar la animación
-            frameCount = 4;  // Usaremos 4 frames (0,0), (1,0), (0,1), (1,1)
+            frameCount = 4;
             frames = new BufferedImage[frameCount];
-            frameDelay = 30; // Cambiado de 15 a 30 para una animación más lenta
-            currentFrame = 0;
-            frameTimer = 0;
+            frameDelay = 30;
+            currentFrame = random.nextInt(frameCount); // Inicio aleatorio
+            frameTimer = random.nextInt(frameDelay); // Timer aleatorio
+            reverseAnimation = random.nextBoolean(); // Dirección aleatoria
+            uniqueDelay = frameDelay + random.nextInt(20) - 10; // Velocidad aleatoria
             
             // Calcular dimensiones de cada frame
-            int frameWidth = fullTreeSheet.getWidth() / 4;  // 4 columnas
-            int frameHeight = fullTreeSheet.getHeight() / 3; // 3 filas
+            int frameWidth = fullTreeSheet.getWidth() / 4;
+            int frameHeight = fullTreeSheet.getHeight() / 3;
             
             // Extraer los frames en el orden correcto
             int index = 0;
@@ -49,8 +56,15 @@ public class AnimatedTree {
     
     public void update() {
         frameTimer++;
-        if(frameTimer > frameDelay) {
-            currentFrame = (currentFrame + 1) % frameCount;
+        if(frameTimer > uniqueDelay) {
+            if(reverseAnimation) {
+                currentFrame--;
+                if(currentFrame < 0) {
+                    currentFrame = frameCount - 1;
+                }
+            } else {
+                currentFrame = (currentFrame + 1) % frameCount;
+            }
             frameTimer = 0;
         }
     }
