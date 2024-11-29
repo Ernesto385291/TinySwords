@@ -16,11 +16,13 @@ public class TileManager {
     GamePanel gp;
     Tile[] tile;
     int[][] mapTileNum;
+    AnimatedTree animatedTree;
     
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[39];
+        tile = new Tile[40];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
+        animatedTree = new AnimatedTree();
         getTileImage();
         loadMap("/maps/map01.txt");
     }
@@ -197,6 +199,35 @@ public class TileManager {
             tile[38].collision = false;
             System.out.println("Tile 38 (right stairs) cargado correctamente");
             
+            // Tree tile (tile[39])
+            BufferedImage fullTreeSheet = ImageIO.read(getClass().getResourceAsStream("/public/Resources/Trees/Tree.png"));
+            int treeWidth = fullTreeSheet.getWidth() / 4;  // 4 columnas ahora
+            int treeHeight = fullTreeSheet.getHeight() / 3; // 3 filas ahora
+            int col = 1; // The column of the tree you want
+            int row = 2; // The row of the tree you want
+
+            tile[39] = new Tile();
+            tile[39].image = fullTreeSheet.getSubimage(
+                col * treeWidth,    // x position
+                row * treeHeight,   // y position
+                treeWidth,          // width of single tree
+                treeHeight          // height of single tree
+            );
+            tile[39].collision = true;
+            System.out.println("Tile 39 (pine tree) cargado correctamente");
+            
+            // Debug: Print all available resources in the directory
+            try (InputStream in = getClass().getResourceAsStream("/public/Resources/Trees");
+                 BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+                String resource;
+                System.out.println("Available resources in Trees directory:");
+                while ((resource = br.readLine()) != null) {
+                    System.out.println(resource);
+                }
+            } catch (Exception e) {
+                System.out.println("Error listing resources: " + e.getMessage());
+            }
+            
         } catch(IOException e) {
             System.out.println("Error cargando imagen: " + e.getMessage());
             e.printStackTrace();
@@ -260,12 +291,11 @@ public class TileManager {
                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 
-                if (tileNum >= 0 && tileNum <= 16 || tileNum >= 35 && tileNum <= 38) {  // Updated range to include stairs
+                if (tileNum >= 0 && tileNum <= 16 || tileNum >= 35 && tileNum <= 38) {
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                } else if (tileNum >= 17 && tileNum < 35) {  // Decorations range stays the same
-                    // Dibujamos el pasto como base
+                } else if (tileNum >= 17 && tileNum < 35) {
+                    // Decoraciones normales
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
-                    // Luego la decoración
                     int decoSize = (int)(gp.tileSize * 0.8);
                     int offsetX = (gp.tileSize - decoSize) / 2;
                     int offsetY = (gp.tileSize - decoSize) / 2;
@@ -275,6 +305,10 @@ public class TileManager {
                         decoSize, 
                         decoSize, 
                         null);
+                } else if (tileNum == 39) {
+                    // Árbol animado
+                    g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                    animatedTree.draw(g2, screenX, screenY, gp.tileSize);
                 }
             }
             
@@ -292,5 +326,9 @@ public class TileManager {
     
     public Tile getTile(int index) {
         return tile[index];
+    }
+    
+    public void update() {
+        animatedTree.update();
     }
 } 

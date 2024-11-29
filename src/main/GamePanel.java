@@ -92,6 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void update() {
         player.update();
+        tileManager.update();
         for(Enemy enemy : enemies) {
             enemy.update();
         }
