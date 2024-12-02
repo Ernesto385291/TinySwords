@@ -31,7 +31,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Player player;
     public Enemy[] enemies;
     private final int NUMBER_OF_ENEMIES = 5;
-    TileManager tileManager;
+    public TileManager tileManager;
     UI ui;
     
     // Agregar estas variables para la posición de la cámara

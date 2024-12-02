@@ -173,45 +173,78 @@ public class Enemy extends Entity {
             // Si el jugador está dentro del rango de detección
             if (xDistance < detectionRange && yDistance < detectionRange) {
                 // Perseguir al jugador
+                int nextWorldX = worldX;
+                int nextWorldY = worldY;
+
                 if(worldX < gp.player.worldX - gp.tileSize/4) {
+                    nextWorldX += speed;
                     direction = "right";
-                    worldX += speed;
                     facingRight = true;
                     isMoving = true;
                 }
                 if(worldX > gp.player.worldX + gp.tileSize/4) {
+                    nextWorldX -= speed;
                     direction = "left";
-                    worldX -= speed;
                     facingRight = false;
                     isMoving = true;
                 }
                 if(worldY < gp.player.worldY - gp.tileSize/4) {
+                    nextWorldY += speed;
                     direction = "down";
-                    worldY += speed;
                     isMoving = true;
                 }
                 if(worldY > gp.player.worldY + gp.tileSize/4) {
+                    nextWorldY -= speed;
                     direction = "up";
-                    worldY -= speed;
                     isMoving = true;
+                }
+
+                // Verificar colisiones antes de mover
+                int col = nextWorldX/gp.tileSize;
+                int row = nextWorldY/gp.tileSize;
+
+                // Verificar límites del mapa
+                if (col >= 0 && row >= 0 && col < gp.maxWorldCol && row < gp.maxWorldRow) {
+                    int tileNum = gp.tileManager.getTileNum(col, row);
+                    // Solo mover si no hay colisión
+                    if(!gp.tileManager.getTile(tileNum).collision) {
+                        worldX = nextWorldX;
+                        worldY = nextWorldY;
+                    }
                 }
             } else {
                 // Patrullar de izquierda a derecha
                 isMoving = true;
+                int nextWorldX = worldX;
                 
                 if (patrollingRight) {
+                    nextWorldX += speed;
                     direction = "right";
                     facingRight = true;
-                    worldX += speed;
-                    if (worldX > startX + patrolDistance) {
-                        patrollingRight = false;
-                    }
                 } else {
+                    nextWorldX -= speed;
                     direction = "left";
                     facingRight = false;
-                    worldX -= speed;
-                    if (worldX < startX - patrolDistance) {
-                        patrollingRight = true;
+                }
+
+                // Verificar colisiones antes de mover
+                int col = nextWorldX/gp.tileSize;
+                int row = worldY/gp.tileSize;
+
+                // Verificar límites del mapa
+                if (col >= 0 && row >= 0 && col < gp.maxWorldCol && row < gp.maxWorldRow) {
+                    int tileNum = gp.tileManager.getTileNum(col, row);
+                    // Solo mover si no hay colisión
+                    if(!gp.tileManager.getTile(tileNum).collision) {
+                        worldX = nextWorldX;
+                        if (worldX > startX + patrolDistance) {
+                            patrollingRight = false;
+                        } else if (worldX < startX - patrolDistance) {
+                            patrollingRight = true;
+                        }
+                    } else {
+                        // Si hay colisión, cambiar dirección
+                        patrollingRight = !patrollingRight;
                     }
                 }
             }
@@ -219,7 +252,7 @@ public class Enemy extends Entity {
         
         // Actualizar animación
         spriteCounter++;
-        if(spriteCounter > 12) {
+        if(spriteCounter > 18) {
             spriteNum++;
             if (isAttacking) {
                 if(spriteNum >= 6) {
