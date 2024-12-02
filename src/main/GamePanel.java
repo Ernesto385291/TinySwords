@@ -1,10 +1,15 @@
 package main;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.InputStream;
 
 import tile.TileManager;
 import entity.Enemy;
@@ -14,6 +19,7 @@ public class GamePanel extends JPanel implements Runnable {
     // Configuración de pantalla
     final int originalTileSize = 16; // 16x16 tiles
     final int scale = 3;
+    private Clip backgroundMusicClip;
     
     public final int tileSize = originalTileSize * scale; // 48x48 tiles
     public final int maxScreenCol = 20;
@@ -63,6 +69,8 @@ public class GamePanel extends JPanel implements Runnable {
         
         this.addKeyListener(player);
         this.setFocusable(true);
+
+        playBackgroundMusic();
     }
     
     public void startGameThread() {
@@ -114,5 +122,45 @@ public class GamePanel extends JPanel implements Runnable {
         ui.draw(g2);
         
         g2.dispose();
+    }
+
+      private void playBackgroundMusic() {
+        try {
+            if (backgroundMusicClip == null) {
+                InputStream musicStream = getClass().getResourceAsStream("/public/songs/Cancion.wav");
+                if (musicStream == null) {
+                    System.err.println("No se encontró el archivo de música de fondo.");
+                    return;
+                }
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicStream);
+                backgroundMusicClip = AudioSystem.getClip();
+                backgroundMusicClip.open(audioStream);
+                setVolume(-10.0f); // Ajustar el volumen (más bajo que el nivel por defecto)
+                backgroundMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            }
+            backgroundMusicClip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void setVolume(float volume) {
+    if (backgroundMusicClip != null && backgroundMusicClip.isOpen()) {
+        try {
+            FloatControl gainControl = (FloatControl) backgroundMusicClip.getControl(FloatControl.Type.MASTER_GAIN);
+            // El volumen debe estar en un rango entre -80.0f (silencio) y 6.0f (amplificación máxima)
+            gainControl.setValue(volume);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Control de volumen no disponible: " + e.getMessage());
+        }
+    }
+    }
+
+
+    private void stopBackgroundMusic() {
+        if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
+            backgroundMusicClip.stop();
+            backgroundMusicClip.close();
+        }
     }
 } 

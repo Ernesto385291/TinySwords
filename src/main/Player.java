@@ -6,13 +6,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import entity.Enemy;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Player implements KeyListener {
-    
+
+    private Clip movementSoundClip;
+    private boolean isMovementSoundPlaying = false;
+    private boolean playFirstSound = true; // Indica qué sonido se reproducirá
     GamePanel gp;
     int x, y;
     int speed;
@@ -51,19 +58,17 @@ public class Player implements KeyListener {
     public boolean isInvincible = false;
     public int invincibleTimer = 0;
     public int invincibleDuration = 60; // 1 segundo de invencibilidad
+
+    SoundManager soundManager = new SoundManager();
     
     public Player(GamePanel gp) {
         this.gp = gp;
         
-        screenX = gp.screenWidth/2;
-        screenY = gp.screenHeight/2;
+        screenX = gp.screenWidth/2 - (gp.tileSize/2);
+        screenY = gp.screenHeight/2 - (gp.tileSize/2);
         
-        // Posición inicial en la esquina inferior izquierda
-        worldX = gp.tileSize * 2;
-        worldY = gp.tileSize * (gp.maxWorldRow - 3);
-        
-        setDefaultValues();
         getPlayerImage();
+        setDefaultValues();
     }
     
     public void getPlayerImage() {
@@ -121,10 +126,9 @@ public class Player implements KeyListener {
     }
     
     public void setDefaultValues() {
-        worldX = gp.tileSize * 2; // Un poco separado del borde izquierdo
-        worldY = gp.tileSize * (gp.maxWorldRow - 3); // Cerca del borde inferior, pero no pegado
+        worldX = gp.tileSize * 23; // posición inicial en el mundo
+        worldY = gp.tileSize * 21;
         speed = 4;
-        direction = "down";
     }
     
     public void update() {
@@ -278,7 +282,7 @@ public class Player implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        
+        boolean wasMoving = upPressed || downPressed || leftPressed || rightPressed;
         if(code == KeyEvent.VK_W) {
             upPressed = true;
         }
@@ -291,11 +295,24 @@ public class Player implements KeyListener {
         if(code == KeyEvent.VK_D) {
             rightPressed = true;
         }
+
+        boolean isMoving = upPressed || downPressed || leftPressed || rightPressed;
+        if (!wasMoving && isMoving) {
+            playMovementSound();
+        }
+
         // Agregar ataque con espacio
         if(code == KeyEvent.VK_SPACE && !isAttacking) {
             isAttacking = true;
             spriteNum = 0;
             attackTimer = 0;
+                    // Alternar entre sonidos
+        if (playFirstSound) {
+            soundManager.playSoundEffect("/public/songs/Espada.wav"); // Sonido 1
+        } else {
+            soundManager.playSoundEffect("/public/songs/Espada2.wav"); // Sonido 2
+        }
+        playFirstSound = !playFirstSound; // Alternar el estado para el siguiente sonido
         }
     }
     
@@ -315,6 +332,11 @@ public class Player implements KeyListener {
         if(code == KeyEvent.VK_D) {
             rightPressed = false;
         }
+            // Si se detuvo el movimiento, detener sonido
+        if (!upPressed && !downPressed && !leftPressed && !rightPressed) {
+        stopMovementSound();
+        }
+        
     }
     
     public void takeDamage(int damage) {
@@ -324,4 +346,34 @@ public class Player implements KeyListener {
             invincibleTimer = 0;
         }
     }
+
+    public void playMovementSound() {
+    try {
+        if (movementSoundClip == null || !movementSoundClip.isOpen()) {
+            InputStream soundStream = getClass().getResourceAsStream("/public/songs/Pasos.wav");
+            if (soundStream == null) {
+                System.err.println("No se encontró el archivo de sonido de movimiento.");
+                return;
+            }
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundStream);
+            movementSoundClip = AudioSystem.getClip();
+            movementSoundClip.open(audioStream);
+        }
+        if (!isMovementSoundPlaying) {
+            movementSoundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            isMovementSoundPlaying = true;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } 
+    }
+
+    private void stopMovementSound() {
+        if (movementSoundClip != null && movementSoundClip.isRunning()) {
+            movementSoundClip.stop();
+            isMovementSoundPlaying = false;
+        }
+    }
+    
+
 } 

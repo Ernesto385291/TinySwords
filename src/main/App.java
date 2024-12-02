@@ -1,7 +1,5 @@
 package main;
 
-import main.TitleScreen;
-
 public class App {
     public static void main(String[] args) {
         // Iniciar la pantalla de título primero
