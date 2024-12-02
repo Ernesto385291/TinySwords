@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.io.InputStream;
 
 import tile.TileManager;
@@ -84,16 +85,27 @@ public class GamePanel extends JPanel implements Runnable {
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
+        long timer = 0;
+        int drawCount = 0;
         
         while(gameThread != null) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
+            timer += (currentTime - lastTime);
             lastTime = currentTime;
             
             if(delta >= 1) {
                 update();
                 repaint();
                 delta--;
+                drawCount++;
+            }
+            
+            // Optimización: Añadir un pequeño sleep para reducir el uso de CPU
+            try {
+                Thread.sleep(1);
+            } catch(InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -110,18 +122,35 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
         
+        // Activar optimizaciones de renderizado
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+        
         // Dibujar el agua (fondo azul turquesa #48ABA9)
         g2.setColor(new Color(72, 171, 169)); // #48ABA9 en RGB
         g2.fillRect(0, 0, screenWidth, screenHeight);
         
+        // Solo dibujar elementos visibles en pantalla
         tileManager.draw(g2);
         for(Enemy enemy : enemies) {
-            enemy.draw(g2);
+            // Solo dibujar enemigos que están cerca de la pantalla
+            if(isEntityVisible(enemy.worldX, enemy.worldY)) {
+                enemy.draw(g2);
+            }
         }
         player.draw(g2);
         ui.draw(g2);
         
         g2.dispose();
+    }
+    
+    // Método para verificar si una entidad está visible en pantalla
+    private boolean isEntityVisible(int worldX, int worldY) {
+        return worldX + tileSize > player.worldX - screenX &&
+               worldX - tileSize < player.worldX + screenX &&
+               worldY + tileSize > player.worldY - screenY &&
+               worldY - tileSize < player.worldY + screenY;
     }
 
       private void playBackgroundMusic() {

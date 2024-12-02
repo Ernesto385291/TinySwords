@@ -292,15 +292,17 @@ public class TileManager {
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
             
-            if(worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
+            // Solo renderizar tiles visibles en pantalla
+            if(worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
                 
                 if (tileNum >= 0 && tileNum <= 16 || tileNum >= 35 && tileNum <= 38) {
+                    // Tiles normales
                     g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                 } else if (tileNum >= 17 && tileNum < 35) {
-                    // Decoraciones normales
+                    // Decoraciones con pasto
                     g2.drawImage(tile[0].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                     int decoSize = (int)(gp.tileSize * 0.8);
                     int offsetX = (gp.tileSize - decoSize) / 2;
