@@ -18,6 +18,7 @@ import entity.Enemy;
 import entity.Sheep;
 import entity.Entity;
 import entity.Meat;
+import entity.Gold;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -56,6 +57,8 @@ public class GamePanel extends JPanel implements Runnable {
     // Agregar una lista para manejar las entidades
     private ArrayList<Entity> entities = new ArrayList<>();
     
+    private Objective[] objectives;
+    
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -90,6 +93,13 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true);
 
         playBackgroundMusic();
+        
+        // Inicializar objetivos
+        objectives = new Objective[4];
+        objectives[0] = new Objective("Elimina 4 enemigos", 4);
+        objectives[1] = new Objective("Recolecta 5 carnes", 5);
+        objectives[2] = new Objective("Mata 3 ovejas", 3);
+        objectives[3] = new Objective("Recolecta 4 monedas de oro", 4);
     }
     
     public void startGameThread() {
@@ -151,7 +161,8 @@ public class GamePanel extends JPanel implements Runnable {
             if(entity != null) {
                 entity.update();
                 // Si la entidad necesita ser eliminada, agregarla a la lista temporal
-                if(entity instanceof Meat && ((Meat)entity).shouldBeRemoved()) {
+                if((entity instanceof Meat && ((Meat)entity).shouldBeRemoved()) ||
+                   (entity instanceof Gold && ((Gold)entity).shouldBeRemoved())) {
                     entitiesToRemove.add(entity);
                 }
             }
@@ -254,5 +265,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void removeEntity(Entity entity) {
         entities.remove(entity);
+    }
+    
+    // Método para actualizar progreso de objetivos
+    public void updateObjective(int index, int amount) {
+        if(objectives[index] != null) {
+            objectives[index].updateProgress(amount);
+        }
+    }
+    
+    // Método para obtener los objetivos (para UI)
+    public Objective[] getObjectives() {
+        return objectives;
     }
 } 

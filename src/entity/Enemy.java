@@ -315,11 +315,21 @@ public class Enemy extends Entity {
     // Agregar método para recibir daño
     public void takeDamage(int damage) {
         currentLife -= damage;
-        if (currentLife <= 0) {
+        if (currentLife <= 0 && !isDead) {
             isDead = true;
-            currentLife = 0;
-            isMoving = false;
-            isAttacking = false;
+            gp.updateObjective(0, 1); // Actualizar objetivo de matar enemigos
+            
+            // Crear oro en la posición del enemigo
+            Gold gold = new Gold(gp, worldX, worldY);
+            gp.addEntity(gold);
+            
+            // Remover este enemigo del array
+            for(int i = 0; i < gp.enemies.length; i++) {
+                if(gp.enemies[i] == this) {
+                    gp.enemies[i] = null;
+                    break;
+                }
+            }
         }
     }
 } 

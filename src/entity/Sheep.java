@@ -160,7 +160,7 @@ public class Sheep extends Entity {
     public void getHit() {
         hitCount++;
         if(hitCount >= 2) {
-            // Crear la carne en la posición exacta de la oveja
+            gp.updateObjective(2, 1); // Actualizar objetivo de matar ovejas
             Meat meat = new Meat(gp, worldX, worldY);
             gp.addEntity(meat);
             

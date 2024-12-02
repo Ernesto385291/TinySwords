@@ -225,14 +225,16 @@ public class Player implements KeyListener {
         if (isAttacking && attackTimer == attackDuration/2) {
             // Verificar si algún enemigo está en rango
             for(Enemy enemy : gp.enemies) {
-                int xDistance = Math.abs(worldX - enemy.worldX);
-                int yDistance = Math.abs(worldY - enemy.worldY);
-                
-                // Rango de ataque basado en la dirección
-                int attackRange = gp.tileSize;
-                
-                if (xDistance < attackRange && yDistance < attackRange) {
-                    enemy.takeDamage(1);
+                if(enemy != null) {
+                    int xDistance = Math.abs(worldX - enemy.worldX);
+                    int yDistance = Math.abs(worldY - enemy.worldY);
+                    
+                    // Rango de ataque basado en la dirección
+                    int attackRange = gp.tileSize;
+                    
+                    if (xDistance < attackRange && yDistance < attackRange) {
+                        enemy.takeDamage(1);
+                    }
                 }
             }
         }

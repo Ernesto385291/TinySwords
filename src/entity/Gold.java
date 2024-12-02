@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
 
-public class Meat extends Entity {
+public class Gold extends Entity {
     
     GamePanel gp;
     private int animationCounter = 0;
@@ -18,7 +18,7 @@ public class Meat extends Entity {
     private boolean shouldRemove = false;
     private SoundManager soundManager = new SoundManager();
     
-    public Meat(GamePanel gp, int x, int y) {
+    public Gold(GamePanel gp, int x, int y) {
         this.gp = gp;
         this.worldX = x;
         this.worldY = y;
@@ -28,7 +28,7 @@ public class Meat extends Entity {
     
     private void loadSprites() {
         try {
-            String path = "/public/Resources/Resources/M_Spawn.png";
+            String path = "/public/Resources/Resources/G_Spawn.png";
             java.io.InputStream is = getClass().getResourceAsStream(path);
             if(is == null) {
                 System.err.println("No se pudo encontrar la imagen en: " + path);
@@ -39,7 +39,6 @@ public class Meat extends Entity {
             int spriteWidth = spriteSheet.getWidth() / TOTAL_FRAMES;
             int spriteHeight = spriteSheet.getHeight();
             
-            // Extraer cada sprite del spritesheet
             for(int i = 0; i < TOTAL_FRAMES; i++) {
                 sprites[i] = spriteSheet.getSubimage(
                     i * spriteWidth, 
@@ -49,7 +48,7 @@ public class Meat extends Entity {
                 );
             }
         } catch(IOException e) {
-            System.err.println("Error cargando spritesheet de carne: " + e.getMessage());
+            System.err.println("Error cargando spritesheet de oro: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -60,32 +59,26 @@ public class Meat extends Entity {
             if(animationCounter > animationSpeed) {
                 currentFrame++;
                 if(currentFrame >= TOTAL_FRAMES) {
-                    currentFrame = TOTAL_FRAMES - 1; // Mantener el último frame
+                    currentFrame = TOTAL_FRAMES - 1;
                     animationFinished = true;
                 }
                 animationCounter = 0;
             }
         }
         
-        // Verificar colisión con el jugador si la animación terminó
         if (animationFinished) {
             checkPlayerCollision();
         }
     }
     
     private void checkPlayerCollision() {
-        // Crear rectángulos de colisión
-        int meatArea = gp.tileSize;
+        int goldArea = gp.tileSize;
         
-        // Verificar si el jugador está tocando la carne
-        if (Math.abs(worldX - gp.player.worldX) < meatArea && 
-            Math.abs(worldY - gp.player.worldY) < meatArea) {
+        if (Math.abs(worldX - gp.player.worldX) < goldArea && 
+            Math.abs(worldY - gp.player.worldY) < goldArea) {
             
-            if (gp.player.currentLife < gp.player.maxLife) {
-                gp.player.currentLife++;
-                soundManager.playSoundEffect("/public/songs/PowerUp.wav");
-                gp.updateObjective(1, 1); // Actualizar objetivo de recolectar carne
-            }
+            soundManager.playSoundEffect("/public/songs/GoldPickUp.wav");
+            gp.updateObjective(3, 1);
             shouldRemove = true;
         }
     }
