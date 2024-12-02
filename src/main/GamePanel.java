@@ -11,10 +11,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import tile.TileManager;
 import entity.Enemy;
 import entity.Sheep;
+import entity.Entity;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -37,7 +39,7 @@ public class GamePanel extends JPanel implements Runnable {
     UI ui;
     
     // Añadir ovejas
-    private Sheep[] sheep;
+    public Sheep[] sheep;
     private final int NUMBER_OF_SHEEP = 4;
     
     // Agregar estas variables para la posición de la cámara
@@ -49,6 +51,9 @@ public class GamePanel extends JPanel implements Runnable {
     public final int maxWorldRow = 25;
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
+    
+    // Agregar una lista para manejar las entidades
+    private ArrayList<Entity> entities = new ArrayList<>();
     
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -126,11 +131,21 @@ public class GamePanel extends JPanel implements Runnable {
         player.update();
         tileManager.update();
         for(Enemy enemy : enemies) {
-            enemy.update();
+            if(enemy != null) {
+                enemy.update();
+            }
         }
         // Actualizar ovejas
         for(Sheep s : sheep) {
-            s.update();
+            if(s != null) {
+                s.update();
+            }
+        }
+        // Actualizar todas las entidades
+        for(Entity entity : entities) {
+            if(entity != null) {
+                entity.update();
+            }
         }
     }
     
@@ -150,15 +165,24 @@ public class GamePanel extends JPanel implements Runnable {
         tileManager.draw(g2);
         // Dibujar ovejas
         for(Sheep s : sheep) {
-            s.draw(g2);
+            if(s != null) {
+                s.draw(g2);
+            }
         }
         for(Enemy enemy : enemies) {
-            if(isEntityVisible(enemy.worldX, enemy.worldY)) {
+            if(enemy != null && isEntityVisible(enemy.worldX, enemy.worldY)) {
                 enemy.draw(g2);
             }
         }
         player.draw(g2);
         ui.draw(g2);
+        
+        // Dibujar todas las entidades
+        for(Entity entity : entities) {
+            if(entity != null) {
+                entity.draw(g2);
+            }
+        }
         
         g2.dispose();
     }
@@ -209,5 +233,14 @@ public class GamePanel extends JPanel implements Runnable {
             backgroundMusicClip.stop();
             backgroundMusicClip.close();
         }
+    }
+
+    // Agregar estos métodos
+    public void addEntity(Entity entity) {
+        entities.add(entity);
+    }
+
+    public void removeEntity(Entity entity) {
+        entities.remove(entity);
     }
 } 

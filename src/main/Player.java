@@ -11,9 +11,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
 import entity.Enemy;
+import entity.Sheep;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.awt.Rectangle;
 
 public class Player implements KeyListener {
 
@@ -183,6 +185,9 @@ public class Player implements KeyListener {
         // Manejar la animación de ataque
         if (isAttacking) {
             attackTimer++;
+            if (attackTimer == attackDuration/2) {
+                checkAttackCollision();
+            }
             if (attackTimer >= attackDuration) {
                 isAttacking = false;
                 attackTimer = 0;
@@ -375,5 +380,34 @@ public class Player implements KeyListener {
         }
     }
     
+    public void checkAttackCollision() {
+        // Obtener el área de ataque basada en la dirección del jugador
+        Rectangle attackArea = new Rectangle(worldX, worldY, gp.tileSize, gp.tileSize);
+        
+        switch(direction) {
+            case "up":
+                attackArea.y -= gp.tileSize;
+                break;
+            case "down":
+                attackArea.y += gp.tileSize;
+                break;
+            case "left":
+                attackArea.x -= gp.tileSize;
+                break;
+            case "right":
+                attackArea.x += gp.tileSize;
+                break;
+        }
+        
+        // Verificar colisiones con las ovejas
+        for(Sheep sheep : gp.sheep) {
+            if(sheep != null) {
+                Rectangle sheepArea = new Rectangle(sheep.worldX, sheep.worldY, gp.tileSize, gp.tileSize);
+                if(attackArea.intersects(sheepArea)) {
+                    sheep.getHit();
+                }
+            }
+        }
+    }
 
 } 

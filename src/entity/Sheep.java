@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 import java.util.Random;
 import java.awt.geom.AffineTransform;
 
-public class Sheep {
+public class Sheep extends Entity {
     GamePanel gp;
     public int worldX, worldY;
     private BufferedImage[] idleSprites;
@@ -20,6 +20,7 @@ public class Sheep {
     private String direction;
     private Random random = new Random();
     private boolean facingRight = true;
+    private int hitCount = 0;
     
     public Sheep(GamePanel gp, int col, int row) {
         this.gp = gp;
@@ -153,6 +154,23 @@ public class Sheep {
             
             // Restaurar la transformación original
             g2.setTransform(originalTransform);
+        }
+    }
+    
+    public void getHit() {
+        hitCount++;
+        if(hitCount >= 2) {
+            // Crear la carne en la posición exacta de la oveja
+            Meat meat = new Meat(gp, worldX, worldY);
+            gp.addEntity(meat);
+            
+            // Remover esta oveja del array de ovejas
+            for(int i = 0; i < gp.sheep.length; i++) {
+                if(gp.sheep[i] == this) {
+                    gp.sheep[i] = null;
+                    break;
+                }
+            }
         }
     }
 } 

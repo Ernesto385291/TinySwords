@@ -1,33 +1,23 @@
 package entity;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.Rectangle;
-import javax.imageio.ImageIO;
-import java.io.IOException;
 
-public class Entity {
-    
+public abstract class Entity {
     public int worldX, worldY;
-    public int speed;
+    protected BufferedImage[] image = new BufferedImage[10];
+    protected int speed;
+    protected String direction;
     
-    public BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
-    public String direction;
+    public abstract void update();
+    public abstract void draw(Graphics2D g2);
     
-    public int spriteCounter = 0;
-    public int spriteNum = 1;
-    
-    public Rectangle solidArea;
-    public int solidAreaDefaultX, solidAreaDefaultY;
-    public boolean collisionOn = false;
-    
-    // Método para cargar imágenes
-    public BufferedImage setup(String imagePath) {
-        BufferedImage image = null;
+    protected BufferedImage setup(String imagePath) {
         try {
-            image = ImageIO.read(getClass().getResourceAsStream(imagePath));
-        } catch(IOException e) {
+            return javax.imageio.ImageIO.read(getClass().getResourceAsStream(imagePath));
+        } catch(Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return image;
     }
 } 
