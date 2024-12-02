@@ -14,6 +14,7 @@ import java.io.InputStream;
 
 import tile.TileManager;
 import entity.Enemy;
+import entity.Sheep;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -34,6 +35,10 @@ public class GamePanel extends JPanel implements Runnable {
     private final int NUMBER_OF_ENEMIES = 5;
     public TileManager tileManager;
     UI ui;
+    
+    // Añadir ovejas
+    private Sheep[] sheep;
+    private final int NUMBER_OF_SHEEP = 4;
     
     // Agregar estas variables para la posición de la cámara
     public int screenX;
@@ -59,11 +64,18 @@ public class GamePanel extends JPanel implements Runnable {
         // Inicializar el array de enemigos
         enemies = new Enemy[NUMBER_OF_ENEMIES];
         // Crear los enemigos en diferentes posiciones
-        enemies[0] = new Enemy(this, 10, 10); // El enemigo original
-        enemies[1] = new Enemy(this, 15, 15); // Nuevo enemigo
-        enemies[2] = new Enemy(this, 5, 20);  // Nuevo enemigo
-        enemies[3] = new Enemy(this, 20, 5);  // Nuevo enemigo
-        enemies[4] = new Enemy(this, 8, 18);  // Nuevo enemigo
+        enemies[0] = new Enemy(this, 10, 10);
+        enemies[1] = new Enemy(this, 15, 15);
+        enemies[2] = new Enemy(this, 5, 20);
+        enemies[3] = new Enemy(this, 20, 5);
+        enemies[4] = new Enemy(this, 8, 18);
+        
+        // Inicializar ovejas
+        sheep = new Sheep[NUMBER_OF_SHEEP];
+        sheep[0] = new Sheep(this, 3, 3);
+        sheep[1] = new Sheep(this, 7, 5);
+        sheep[2] = new Sheep(this, 12, 8);
+        sheep[3] = new Sheep(this, 18, 12);
         
         tileManager = new TileManager(this);
         ui = new UI(this);
@@ -116,6 +128,10 @@ public class GamePanel extends JPanel implements Runnable {
         for(Enemy enemy : enemies) {
             enemy.update();
         }
+        // Actualizar ovejas
+        for(Sheep s : sheep) {
+            s.update();
+        }
     }
     
     public void paintComponent(Graphics g) {
@@ -128,13 +144,15 @@ public class GamePanel extends JPanel implements Runnable {
         g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
         
         // Dibujar el agua (fondo azul turquesa #48ABA9)
-        g2.setColor(new Color(72, 171, 169)); // #48ABA9 en RGB
+        g2.setColor(new Color(72, 171, 169));
         g2.fillRect(0, 0, screenWidth, screenHeight);
         
-        // Solo dibujar elementos visibles en pantalla
         tileManager.draw(g2);
+        // Dibujar ovejas
+        for(Sheep s : sheep) {
+            s.draw(g2);
+        }
         for(Enemy enemy : enemies) {
-            // Solo dibujar enemigos que están cerca de la pantalla
             if(isEntityVisible(enemy.worldX, enemy.worldY)) {
                 enemy.draw(g2);
             }
