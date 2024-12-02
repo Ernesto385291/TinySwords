@@ -126,8 +126,8 @@ public class Player implements KeyListener {
     }
     
     public void setDefaultValues() {
-        worldX = gp.tileSize * 23; // posición inicial en el mundo
-        worldY = gp.tileSize * 21;
+        worldX = gp.tileSize * 1; // posición inicial en el mundo (esquina izquierda)
+        worldY = gp.tileSize * 23; // posición inicial en el mundo (cerca del borde inferior)
         speed = 4;
     }
     
