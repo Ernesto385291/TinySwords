@@ -36,20 +36,20 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     public Player player;
     public Enemy[] enemies;
-    private final int NUMBER_OF_ENEMIES = 5;
+    private final int NUMBER_OF_ENEMIES = 8;
     public TileManager tileManager;
     UI ui;
     
     // Añadir ovejas
     public Sheep[] sheep;
-    private final int NUMBER_OF_SHEEP = 4;
+    private final int NUMBER_OF_SHEEP = 13;
     
     // Agregar estas variables para la posición de la cámara
     public int screenX;
     public int screenY;
     
     // Agregar configuración del mundo
-    public final int maxWorldCol = 25;
+    public final int maxWorldCol = 50;
     public final int maxWorldRow = 25;
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
@@ -71,20 +71,31 @@ public class GamePanel extends JPanel implements Runnable {
         player = new Player(this);
         
         // Inicializar el array de enemigos
-        enemies = new Enemy[NUMBER_OF_ENEMIES];
-        // Crear los enemigos en diferentes posiciones
-        enemies[0] = new Enemy(this, 10, 10);
-        enemies[1] = new Enemy(this, 15, 15);
-        enemies[2] = new Enemy(this, 5, 20);
-        enemies[3] = new Enemy(this, 20, 5);
-        enemies[4] = new Enemy(this, 8, 18);
-        
-        // Inicializar ovejas
-        sheep = new Sheep[NUMBER_OF_SHEEP];
-        sheep[0] = new Sheep(this, 3, 3);
-        sheep[1] = new Sheep(this, 7, 5);
-        sheep[2] = new Sheep(this, 12, 8);
-        sheep[3] = new Sheep(this, 18, 12);
+        this.enemies = new Enemy[NUMBER_OF_ENEMIES];
+        enemies[0] = new Enemy(this, 41, 5);
+        enemies[1] = new Enemy(this, 3, 6);
+        enemies[2] = new Enemy(this, 30, 6);
+        enemies[3] = new Enemy(this, 30, 14);
+        enemies[4] = new Enemy(this, 20, 15);
+        enemies[5] = new Enemy(this, 39, 15);
+        enemies[6] = new Enemy(this, 5, 20);
+        enemies[7] = new Enemy(this, 21, 22);
+
+
+        this.sheep = new Sheep[NUMBER_OF_SHEEP];
+        sheep[0] = new Sheep(this, 4, 1);
+        sheep[1] = new Sheep(this, 26, 2);
+        sheep[2] = new Sheep(this, 45, 2);
+        sheep[3] = new Sheep(this, 14, 3);
+        sheep[4] = new Sheep(this, 37, 4);
+        sheep[5] = new Sheep(this, 38, 10);
+        sheep[6] = new Sheep(this, 11, 11);
+        sheep[7] = new Sheep(this, 26, 13);
+        sheep[8] = new Sheep(this, 16, 15);
+        sheep[9] = new Sheep(this, 34, 17);
+        sheep[10] = new Sheep(this, 45, 18);
+        sheep[11] = new Sheep(this, 27, 19);
+        sheep[12] = new Sheep(this, 37, 24);
         
         tileManager = new TileManager(this);
         ui = new UI(this);
@@ -99,7 +110,7 @@ public class GamePanel extends JPanel implements Runnable {
         objectives[0] = new Objective("Elimina 4 enemigos", 4);
         objectives[1] = new Objective("Recolecta 5 carnes", 5);
         objectives[2] = new Objective("Mata 3 ovejas", 3);
-        objectives[3] = new Objective("Recolecta 4 monedas de oro", 4);
+        objectives[3] = new Objective("Recolecta 8 sacos de oro", 8);
     }
     
     public void startGameThread() {
