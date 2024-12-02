@@ -276,10 +276,6 @@ public class Player implements KeyListener {
         } else {
             g2.drawImage(image, drawX, drawY, width, height, null);
         }
-        
-        // Para debugging (opcional)
-        g2.setColor(Color.red);
-        g2.drawRect(drawX, drawY, width, height);
     }
     
     @Override
@@ -289,37 +285,46 @@ public class Player implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
-        boolean wasMoving = upPressed || downPressed || leftPressed || rightPressed;
-        if(code == KeyEvent.VK_W) {
-            upPressed = true;
-        }
-        if(code == KeyEvent.VK_S) {
-            downPressed = true;
-        }
-        if(code == KeyEvent.VK_A) {
-            leftPressed = true;
-        }
-        if(code == KeyEvent.VK_D) {
-            rightPressed = true;
-        }
+        
+        if(gp.gameState == GamePanel.PLAY_STATE) {
+            boolean wasMoving = upPressed || downPressed || leftPressed || rightPressed;
+            if(code == KeyEvent.VK_W) {
+                upPressed = true;
+            }
+            if(code == KeyEvent.VK_S) {
+                downPressed = true;
+            }
+            if(code == KeyEvent.VK_A) {
+                leftPressed = true;
+            }
+            if(code == KeyEvent.VK_D) {
+                rightPressed = true;
+            }
 
-        boolean isMoving = upPressed || downPressed || leftPressed || rightPressed;
-        if (!wasMoving && isMoving) {
-            playMovementSound();
-        }
+            boolean isMoving = upPressed || downPressed || leftPressed || rightPressed;
+            if (!wasMoving && isMoving) {
+                playMovementSound();
+            }
 
-        // Agregar ataque con espacio
-        if(code == KeyEvent.VK_SPACE && !isAttacking) {
-            isAttacking = true;
-            spriteNum = 0;
-            attackTimer = 0;
-                    // Alternar entre sonidos
-        if (playFirstSound) {
-            soundManager.playSoundEffect("/public/songs/Espada.wav"); // Sonido 1
-        } else {
-            soundManager.playSoundEffect("/public/songs/Espada2.wav"); // Sonido 2
+            // Agregar ataque con espacio
+            if(code == KeyEvent.VK_SPACE && !isAttacking) {
+                isAttacking = true;
+                spriteNum = 0;
+                attackTimer = 0;
+                        // Alternar entre sonidos
+            if (playFirstSound) {
+                soundManager.playSoundEffect("/public/songs/Espada.wav"); // Sonido 1
+            } else {
+                soundManager.playSoundEffect("/public/songs/Espada2.wav"); // Sonido 2
+            }
+            playFirstSound = !playFirstSound; // Alternar el estado para el siguiente sonido
+            }
         }
-        playFirstSound = !playFirstSound; // Alternar el estado para el siguiente sonido
+        else if(gp.gameState == GamePanel.GAME_OVER_STATE) {
+            if(code == KeyEvent.VK_SPACE) {
+                // Reiniciar el juego
+                gp.setupGame();  // Necesitarás crear este método en GamePanel
+            }
         }
     }
     

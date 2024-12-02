@@ -59,6 +59,12 @@ public class GamePanel extends JPanel implements Runnable {
     
     private Objective[] objectives;
     
+    // Agregar estados del juego
+    public static final int PLAY_STATE = 0;
+    public static final int GAME_OVER_STATE = 1;
+    public static final int WIN_STATE = 2;
+    public int gameState = PLAY_STATE;
+    
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
@@ -150,37 +156,56 @@ public class GamePanel extends JPanel implements Runnable {
     }
     
     public void update() {
-        player.update();
-        tileManager.update();
-        for(Enemy enemy : enemies) {
-            if(enemy != null) {
-                enemy.update();
-            }
-        }
-        // Actualizar ovejas
-        for(Sheep s : sheep) {
-            if(s != null) {
-                s.update();
-            }
-        }
-        
-        // Crear una lista temporal para las entidades a eliminar
-        ArrayList<Entity> entitiesToRemove = new ArrayList<>();
-        
-        // Actualizar todas las entidades
-        for(Entity entity : entities) {
-            if(entity != null) {
-                entity.update();
-                // Si la entidad necesita ser eliminada, agregarla a la lista temporal
-                if((entity instanceof Meat && ((Meat)entity).shouldBeRemoved()) ||
-                   (entity instanceof Gold && ((Gold)entity).shouldBeRemoved())) {
-                    entitiesToRemove.add(entity);
+        if(gameState == PLAY_STATE) {
+            player.update();
+            tileManager.update();
+            for(Enemy enemy : enemies) {
+                if(enemy != null) {
+                    enemy.update();
                 }
             }
+            // Actualizar ovejas
+            for(Sheep s : sheep) {
+                if(s != null) {
+                    s.update();
+                }
+            }
+            
+            // Crear una lista temporal para las entidades a eliminar
+            ArrayList<Entity> entitiesToRemove = new ArrayList<>();
+            
+            // Actualizar todas las entidades
+            for(Entity entity : entities) {
+                if(entity != null) {
+                    entity.update();
+                    // Si la entidad necesita ser eliminada, agregarla a la lista temporal
+                    if((entity instanceof Meat && ((Meat)entity).shouldBeRemoved()) ||
+                       (entity instanceof Gold && ((Gold)entity).shouldBeRemoved())) {
+                        entitiesToRemove.add(entity);
+                    }
+                }
+            }
+            
+            // Eliminar las entidades después de la iteración
+            entities.removeAll(entitiesToRemove);
+            
+            // Verificar condición de victoria
+            boolean allObjectivesCompleted = true;
+            for(Objective obj : objectives) {
+                if(!obj.isCompleted()) {
+                    allObjectivesCompleted = false;
+                    break;
+                }
+            }
+            if(allObjectivesCompleted) {
+                gameState = WIN_STATE;
+            }
+            
+            // Verificar condición de derrota
+            if(player.currentLife <= 0) {
+                gameState = GAME_OVER_STATE;
+            }
         }
-        
-        // Eliminar las entidades después de la iteración
-        entities.removeAll(entitiesToRemove);
     }
     
     public void paintComponent(Graphics g) {
@@ -288,5 +313,25 @@ public class GamePanel extends JPanel implements Runnable {
     // Método para obtener los objetivos (para UI)
     public Objective[] getObjectives() {
         return objectives;
+    }
+
+    public void setupGame() {
+        // Reiniciar estado del juego
+        gameState = PLAY_STATE;
+        
+        // Reiniciar jugador
+        player.currentLife = 3;
+        player.worldX = this.tileSize * 1;
+        player.worldY = this.tileSize * 23;
+        
+        // Reiniciar objetivos
+        objectives = new Objective[4];
+        objectives[0] = new Objective("Elimina 4 enemigos", 4);
+        objectives[1] = new Objective("Recolecta 5 carnes", 5);
+        objectives[2] = new Objective("Mata 3 ovejas", 3);
+        objectives[3] = new Objective("Recolecta 8 sacos de oro", 8);
+        
+        // Reiniciar enemigos y ovejas
+        // ... código para reiniciar enemigos y ovejas ...
     }
 } 
