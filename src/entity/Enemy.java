@@ -55,7 +55,7 @@ public class Enemy extends Entity {
     }
     
     public void setDefaultValues() {
-        speed = 2;
+        speed = 1;
         direction = "right";
         
         // Reducir la distancia de patrulla
