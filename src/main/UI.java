@@ -19,20 +19,13 @@ public class UI {
     }
     
     public void draw(Graphics2D g2) {
-        int heartSize = (int)(gp.tileSize * 0.7);
-        int margin = 5;
+        int heartSize = 32;
         int startX = 10;
         int startY = 10;
+        int spacing = 40;
         
-        for(int i = 0; i < gp.player.maxLife; i++) {
-            if (i < gp.player.currentLife) {
-                g2.drawImage(heartFull, 
-                    startX + (i * (heartSize + margin)),
-                    startY,
-                    heartSize,
-                    heartSize,
-                    null);
-            }
+        for(int i = 0; i < gp.player.currentLife; i++) {
+            g2.drawImage(heartFull, startX + (i * spacing), startY, heartSize, heartSize, null);
         }
     }
 } 

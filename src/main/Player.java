@@ -55,8 +55,8 @@ public class Player implements KeyListener {
     String direction = "right";
     
     // Variables de vida
-    public int maxLife = 3;
-    public int currentLife = maxLife;
+    public int maxLife = 6;
+    public int currentLife = 3;
     public boolean isInvincible = false;
     public int invincibleTimer = 0;
     public int invincibleDuration = 60; // 1 segundo de invencibilidad

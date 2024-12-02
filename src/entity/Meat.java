@@ -1,6 +1,7 @@
 package entity;
 
 import main.GamePanel;
+import main.SoundManager;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ public class Meat extends Entity {
     private final int TOTAL_FRAMES = 7;
     private boolean animationFinished = false;
     private boolean shouldRemove = false;
+    private SoundManager soundManager = new SoundManager();
     
     public Meat(GamePanel gp, int x, int y) {
         this.gp = gp;
@@ -82,6 +84,8 @@ public class Meat extends Entity {
             // Aumentar la vida del jugador
             if (gp.player.currentLife < gp.player.maxLife) {
                 gp.player.currentLife++;
+                // Reproducir sonido de power up
+                soundManager.playSoundEffect("/public/songs/PowerUp.wav");
             }
             shouldRemove = true;  // Marcar para eliminación en lugar de eliminar directamente
         }
