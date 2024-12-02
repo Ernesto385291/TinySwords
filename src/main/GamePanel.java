@@ -17,6 +17,7 @@ import tile.TileManager;
 import entity.Enemy;
 import entity.Sheep;
 import entity.Entity;
+import entity.Meat;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -141,12 +142,23 @@ public class GamePanel extends JPanel implements Runnable {
                 s.update();
             }
         }
+        
+        // Crear una lista temporal para las entidades a eliminar
+        ArrayList<Entity> entitiesToRemove = new ArrayList<>();
+        
         // Actualizar todas las entidades
         for(Entity entity : entities) {
             if(entity != null) {
                 entity.update();
+                // Si la entidad necesita ser eliminada, agregarla a la lista temporal
+                if(entity instanceof Meat && ((Meat)entity).shouldBeRemoved()) {
+                    entitiesToRemove.add(entity);
+                }
             }
         }
+        
+        // Eliminar las entidades después de la iteración
+        entities.removeAll(entitiesToRemove);
     }
     
     public void paintComponent(Graphics g) {

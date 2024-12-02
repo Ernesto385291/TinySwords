@@ -13,6 +13,8 @@ public class Meat extends Entity {
     private int currentFrame = 0;
     private BufferedImage[] sprites;
     private final int TOTAL_FRAMES = 7;
+    private boolean animationFinished = false;
+    private boolean shouldRemove = false;
     
     public Meat(GamePanel gp, int x, int y) {
         this.gp = gp;
@@ -51,14 +53,42 @@ public class Meat extends Entity {
     }
     
     public void update() {
-        animationCounter++;
-        if(animationCounter > animationSpeed) {
-            currentFrame++;
-            if(currentFrame >= TOTAL_FRAMES) {
-                currentFrame = TOTAL_FRAMES - 1; // Mantener el último frame
+        if (!animationFinished) {
+            animationCounter++;
+            if(animationCounter > animationSpeed) {
+                currentFrame++;
+                if(currentFrame >= TOTAL_FRAMES) {
+                    currentFrame = TOTAL_FRAMES - 1; // Mantener el último frame
+                    animationFinished = true;
+                }
+                animationCounter = 0;
             }
-            animationCounter = 0;
         }
+        
+        // Verificar colisión con el jugador si la animación terminó
+        if (animationFinished) {
+            checkPlayerCollision();
+        }
+    }
+    
+    private void checkPlayerCollision() {
+        // Crear rectángulos de colisión
+        int meatArea = gp.tileSize;
+        
+        // Verificar si el jugador está tocando la carne
+        if (Math.abs(worldX - gp.player.worldX) < meatArea && 
+            Math.abs(worldY - gp.player.worldY) < meatArea) {
+            
+            // Aumentar la vida del jugador
+            if (gp.player.currentLife < gp.player.maxLife) {
+                gp.player.currentLife++;
+            }
+            shouldRemove = true;  // Marcar para eliminación en lugar de eliminar directamente
+        }
+    }
+    
+    public boolean shouldBeRemoved() {
+        return shouldRemove;
     }
     
     public void draw(java.awt.Graphics2D g2) {
